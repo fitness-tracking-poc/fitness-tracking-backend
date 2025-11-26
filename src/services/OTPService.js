@@ -12,14 +12,9 @@ class OTPService {
      * @returns {string} 6-digit OTP
      */
     generateOTP() {
-        // For development, always return "123456"
-        if (process.env.NODE_ENV === 'development') {
-            return '123456';
-        }
-
-        // For production, generate random 6-digit OTP
-        return crypto.randomInt(100000, 999999).toString();
-    }
+        // For development and initial testing, always return "123456"
+        // TODO: Implement real OTP generation for production
+        return '123456';
 
     /**
      * Send OTP via SMS
