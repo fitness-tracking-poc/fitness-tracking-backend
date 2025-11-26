@@ -9,10 +9,7 @@ const connectDB = async () => {
         // Ensure we're using the 'Fitness' database
         const MONGODB_URI = process.env.MONGODB_URI.replace(/\/[^\/]*$/, '/Fitness');
 
-        const conn = await mongoose.connect(MONGODB_URI, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
-        });
+        const conn = await mongoose.connect(MONGODB_URI);
 
         console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
         console.log(`📊 Database Name: ${conn.connection.name}`);

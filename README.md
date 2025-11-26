@@ -1,23 +1,20 @@
 # Fitness App Backend
 
-A comprehensive REST API backend for a fitness tracking application built with Node.js, Express, and MongoDB.
+A simplified REST API backend for a fitness tracking application built with Node.js, Express, and MongoDB. Focuses on basic data recording without complex calculations.
 
 ## 📋 Features
 
-- **User Authentication**: JWT-based authentication with secure password hashing
-- **Profile Management**: User profiles with BMR and calorie calculations
-- **Meal Tracking**: Log meals with nutritional information and daily summaries
-- **Exercise Tracking**: Track workouts with statistics and progress
-- **Habit Tracking**: Daily habits with streak tracking
-- **Progress Tracking**: Weight and body measurements over time
-- **Workout Plans**: Predefined workout plans with progress tracking
+- **OTP Authentication**: Mobile number verification with SMS OTP (mocked in development)
+- **Profile Management**: Minimal profile collection (name, gender, birthdate required)
+- **Meal Tracking**: Log meals with time-based validation (breakfast, brunch, lunch, dinner, snack)
+- **Exercise Tracking**: Basic exercise logging without calculations
 
 ## 🚀 Getting Started
 
 ### Prerequisites
 
 - Node.js (v14 or higher)
-- MongoDB (local or Atlas)
+- MongoDB Atlas account (or local MongoDB)
 
 ### Installation
 
@@ -27,24 +24,17 @@ npm install
 ```
 
 2. Configure environment variables:
-```bash
-# Copy .env file and update with your values
-cp .env .env.local
+Create a `.env` file in the root directory:
+```env
+NODE_ENV=development
+MONGO_URI=your-mongodb-atlas-connection-string
+JWT_SECRET=your-secure-jwt-secret-here
+PORT=5000
 ```
 
-Update `.env` with your configuration:
-- `MONGODB_URI`: Your MongoDB connection string
-- `JWT_SECRET`: A secure random string for JWT signing
-- `PORT`: Server port (default: 5000)
-
-3. Seed the database (optional):
+3. Start the server:
 ```bash
-node src/utils/seedDatabase.js
-```
-
-4. Start the server:
-```bash
-# Development mode with auto-reload
+# Development mode
 npm run dev
 
 # Production mode
@@ -62,9 +52,10 @@ http://localhost:5000/api
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| POST | `/auth/register` | Register new user |
-| POST | `/auth/login` | Login user |
-| GET | `/auth/me` | Get current user |
+| POST | `/auth/send-otp` | Send OTP to mobile number |
+| POST | `/auth/verify-register` | Register with OTP verification |
+| POST | `/auth/verify-login` | Login with OTP verification |
+| GET | `/auth/me` | Get current authenticated user |
 
 ### User Profile Endpoints
 
@@ -72,58 +63,27 @@ http://localhost:5000/api
 |--------|----------|-------------|
 | GET | `/user/profile` | Get user profile |
 | PUT | `/user/profile` | Update profile |
-| GET | `/user/calories/required` | Get calorie requirements |
+| PUT | `/user/account` | Update account info (name) |
 
 ### Meal Endpoints
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| POST | `/meals` | Add meal |
+| POST | `/meals` | Add meal (with time validation) |
+| GET | `/meals` | Get all meals (with date filtering) |
 | GET | `/meals/today` | Get today's meals |
-| GET | `/meals/week` | Get weekly summary |
+| PUT | `/meals/:id` | Update meal |
 | DELETE | `/meals/:id` | Delete meal |
-| GET | `/meals/foods` | Get food database |
-| POST | `/meals/foods` | Add custom food |
 
 ### Exercise Endpoints
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | POST | `/exercises` | Add exercise |
+| GET | `/exercises` | Get all exercises (with date filtering) |
 | GET | `/exercises/today` | Get today's exercises |
-| GET | `/exercises/week` | Get weekly summary |
-| GET | `/exercises/stats` | Get statistics |
+| PUT | `/exercises/:id` | Update exercise |
 | DELETE | `/exercises/:id` | Delete exercise |
-
-### Habit Endpoints
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/habits` | Create habit |
-| GET | `/habits` | Get all habits |
-| GET | `/habits/today` | Get today's habits |
-| PATCH | `/habits/:id/complete` | Mark habit complete |
-| GET | `/habits/:id/history` | Get habit history |
-
-### Progress Endpoints
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/progress/weight` | Add weight entry |
-| GET | `/progress/weight/history` | Get weight history |
-| POST | `/progress/measurements` | Add measurements |
-| GET | `/progress/measurements/history` | Get measurement history |
-| GET | `/progress/summary` | Get progress summary |
-
-### Workout Plan Endpoints
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/plans` | Get all plans |
-| GET | `/plans/:id` | Get plan details |
-| POST | `/plans/assign` | Assign plan to user |
-| GET | `/plans/user` | Get user's active plan |
-| POST | `/plans/complete-workout` | Mark workout complete |
 
 ## 🏗️ Project Structure
 
@@ -131,96 +91,109 @@ http://localhost:5000/api
 backend/
 ├── src/
 │   ├── config/
-│   │   └── database.js          # Database connection
+│   │   └── database.js          # MongoDB connection
 │   ├── controllers/
-│   │   ├── auth.controller.js   # Authentication logic
-│   │   ├── user.controller.js   # User profile logic
-│   │   ├── meal.controller.js   # Meal tracking logic
-│   │   ├── exercise.controller.js
-│   │   ├── habit.controller.js
-│   │   ├── progress.controller.js
-│   │   └── plan.controller.js
+│   │   ├── auth.controller.js   # OTP authentication
+│   │   ├── user.controller.js   # Profile management
+│   │   ├── meal.controller.js   # Meal tracking with time validation
+│   │   └── exercise.controller.js # Exercise logging
 │   ├── middleware/
 │   │   ├── auth.js              # JWT authentication
 │   │   └── errorHandler.js      # Error handling
 │   ├── models/
-│   │   ├── User.js
-│   │   ├── Profile.js
-│   │   ├── Food.js
-│   │   ├── Meal.js
-│   │   ├── Exercise.js
-│   │   ├── Habit.js
-│   │   ├── HabitLog.js
-│   │   ├── ProgressWeight.js
-│   │   ├── ProgressMeasurements.js
-│   │   ├── WorkoutPlan.js
-│   │   └── AssignedPlan.js
+│   │   ├── User.js              # User with mobile auth
+│   │   ├── Profile.js           # Minimal profile
+│   │   ├── Meal.js              # Meal with time validation
+│   │   └── Exercise.js          # Basic exercise tracking
 │   ├── routes/
 │   │   ├── auth.routes.js
 │   │   ├── user.routes.js
 │   │   ├── meal.routes.js
-│   │   ├── exercise.routes.js
-│   │   ├── habit.routes.js
-│   │   ├── progress.routes.js
-│   │   └── plan.routes.js
+│   │   └── exercise.routes.js
+│   ├── services/
+│   │   └── OTPService.js        # Mock OTP service
 │   ├── utils/
 │   │   ├── asyncHandler.js      # Async error wrapper
-│   │   ├── calculations.js      # BMR & calorie calculations
 │   │   ├── ErrorResponse.js     # Custom error class
 │   │   └── seedDatabase.js      # Database seeding
 │   └── server.js                # App entry point
+├── API_DOCUMENTATION.md         # Detailed API docs
+├── Fitness_App_API.postman_collection.json  # Postman collection
 ├── .env                         # Environment variables
 ├── .gitignore
-└── package.json
+├── package.json
+└── README.md
 ```
 
 ## 🔐 Authentication
 
-All protected routes require a JWT token in the Authorization header:
+The app uses OTP-based authentication:
 
-```
-Authorization: Bearer <your_jwt_token>
-```
+1. **Send OTP**: POST `/api/auth/send-otp` with mobile number
+2. **Verify & Register/Login**: Use the OTP to register or login
+3. **JWT Token**: All subsequent requests require `Authorization: Bearer <token>`
+
+**Development Note**: OTP is always "123456" in development mode.
 
 ## 🧪 Testing with Postman
 
-1. Import the API endpoints into Postman
-2. Register a new user via `/api/auth/register`
-3. Copy the returned JWT token
-4. Set the token in Postman's Authorization tab (Bearer Token)
-5. Test other endpoints
+1. Import `Fitness_App_API.postman_collection.json` into Postman
+2. Set environment variables:
+   - `base_url`: `http://localhost:5000`
+   - `token`: (will be set after login)
+3. Start with "Send OTP" request
+4. Use "Register" or "Login" with OTP "123456"
+5. Copy the returned token to the `token` variable
+6. Test other endpoints
 
 ## 📝 Example Requests
 
+### Send OTP
+```json
+POST /api/auth/send-otp
+{
+  "mobileNumber": "+911234567890"
+}
+```
+
 ### Register User
 ```json
-POST /api/auth/register
+POST /api/auth/verify-register
 {
+  "mobileNumber": "+911234567890",
+  "otp": "123456",
   "name": "John Doe",
-  "email": "john@example.com",
-  "password": "password123",
-  "age": 25,
-  "gender": "male",
-  "height": 175,
-  "weight": 75,
-  "fitnessGoal": "lose_weight",
-  "activityLevel": "moderate"
+  "profile": {
+    "birthDate": "1999-01-01",
+    "gender": "male"
+  }
 }
 ```
 
 ### Add Meal
 ```json
 POST /api/meals
+Authorization: Bearer <your_jwt_token>
 {
   "mealType": "breakfast",
-  "foods": [
+  "foodItems": [
     {
-      "foodId": "food_id_here",
-      "quantity": 1
+      "name": "Oatmeal",
+      "quantity": "1 bowl"
     }
-  ]
+  ],
+  "calories": 150
 }
 ```
+
+## ⏰ Meal Time Validation
+
+Meals must be logged within specific time windows:
+- **Breakfast**: 6:00 AM - 11:00 AM
+- **Brunch**: 10:00 AM - 2:00 PM
+- **Lunch**: 11:00 AM - 3:00 PM
+- **Dinner**: 5:00 PM - 11:00 PM
+- **Snack**: Anytime
 
 ## 🛠️ Technologies Used
 
@@ -229,8 +202,19 @@ POST /api/meals
 - **MongoDB** - Database
 - **Mongoose** - ODM
 - **JWT** - Authentication
-- **bcryptjs** - Password hashing
 - **express-validator** - Input validation
+
+## 🚀 Deployment
+
+This app is configured for easy deployment on platforms like Render, Heroku, or Vercel.
+
+### Environment Variables for Production
+```env
+NODE_ENV=production
+MONGO_URI=your-production-mongodb-uri
+JWT_SECRET=your-secure-production-jwt-secret
+PORT=10000
+```
 
 ## 📄 License
 
@@ -238,4 +222,4 @@ ISC
 
 ## 👨‍💻 Author
 
-Fitness App Backend Team
+Fitness Tracking POC
