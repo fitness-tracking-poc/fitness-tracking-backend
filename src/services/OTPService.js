@@ -15,6 +15,7 @@ class OTPService {
         // For development and initial testing, always return "123456"
         // TODO: Implement real OTP generation for production
         return '123456';
+    }
 
     /**
      * Send OTP via SMS
