@@ -37,6 +37,8 @@ app.use('/api/auth', require('./routes/auth.routes'));
 app.use('/api/user', require('./routes/user.routes'));
 app.use('/api/meals', require('./routes/meal.routes'));
 app.use('/api/exercises', require('./routes/exercise.routes'));
+app.use('/api/summary', require('./routes/summary.routes'));
+app.use('/api/health-metrics', require('./routes/healthMetric.routes'));
 
 // Error Handling Middleware
 app.use(require('./middleware/errorHandler'));

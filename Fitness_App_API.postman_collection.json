@@ -1,7 +1,7 @@
 {
     "info": {
-        "name": "Fitness App Minimal API",
-        "description": "Only registration/login (mobile/OTP), profile, meal, and exercise recording endpoints.",
+        "name": "Fitness App API",
+        "description": "Complete fitness tracking API with authentication, profiles, meals, exercises, health metrics, and reports.",
         "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
     },
     "item": [
@@ -447,6 +447,358 @@
                                 "api",
                                 "exercises",
                                 ":id"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Health Metrics",
+            "item": [
+                {
+                    "name": "Add Blood Pressure",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"metric_type\": \"blood_pressure\",\n  \"value\": {\n    \"systolic\": 120,\n    \"diastolic\": 80\n  },\n  \"measured_at\": \"2025-11-27T10:30:00Z\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/health-metrics",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "health-metrics"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Add Heart Rate",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"metric_type\": \"heart_rate\",\n  \"value\": {\n    \"bpm\": 72\n  },\n  \"measured_at\": \"2025-11-27T08:00:00Z\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/health-metrics",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "health-metrics"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Add Weight",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"metric_type\": \"weight\",\n  \"value\": {\n    \"kg\": 70.5\n  },\n  \"measured_at\": \"2025-11-27T07:00:00Z\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/health-metrics",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "health-metrics"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Health Metrics",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/health-metrics?metric_type=blood_pressure",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "health-metrics"
+                            ],
+                            "query": [
+                                {
+                                    "key": "metric_type",
+                                    "value": "blood_pressure"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Update Health Metric",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"value\": {\n    \"systolic\": 118,\n    \"diastolic\": 75\n  }\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/health-metrics/:id",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "health-metrics",
+                                ":id"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Delete Health Metric",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/health-metrics/:id",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "health-metrics",
+                                ":id"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Blood Pressure Report (Daily)",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/health-metrics/report?metric_type=blood_pressure&range=daily",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "health-metrics",
+                                "report"
+                            ],
+                            "query": [
+                                {
+                                    "key": "metric_type",
+                                    "value": "blood_pressure"
+                                },
+                                {
+                                    "key": "range",
+                                    "value": "monthly",
+                                    "description": "Last 30 days"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Heart Rate Report (Weekly)",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/health-metrics/report?metric_type=heart_rate&range=weekly",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "health-metrics",
+                                "report"
+                            ],
+                            "query": [
+                                {
+                                    "key": "metric_type",
+                                    "value": "heart_rate"
+                                },
+                                {
+                                    "key": "range",
+                                    "value": "weekly"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Weight Report (Monthly)",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/health-metrics/report?metric_type=weight&range=monthly",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "health-metrics",
+                                "report"
+                            ],
+                            "query": [
+                                {
+                                    "key": "metric_type",
+                                    "value": "weight"
+                                },
+                                {
+                                    "key": "range",
+                                    "value": "monthly",
+                                    "description": "Last 30 days"
+                                }
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Summaries & Reports",
+            "item": [
+                {
+                    "name": "Get Daily Summary",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/summary/daily",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "summary",
+                                "daily"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Weekly Report",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/summary/weekly",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "summary",
+                                "weekly"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Monthly Report",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/summary/monthly",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "summary",
+                                "monthly"
                             ]
                         }
                     }

@@ -112,7 +112,6 @@ exports.verifyOTPAndRegister = asyncHandler(async (req, res, next) => {
         fitnessGoal,
         activityLevel: profile.activityLevel || 'moderate',
         birthDate: profile.birthDate,
-        sex: profile.sex,
         bloodType: profile.bloodType,
         dietaryPreferences: profile.dietaryPreferences,
         waterGoal: profile.waterGoal,

@@ -22,6 +22,17 @@ const UserSchema = new mongoose.Schema({
             'Please provide a valid mobile number'
         ]
     },
+    email: {
+        type: String,
+        unique: true,
+        sparse: true, // Allows multiple null values
+        trim: true,
+        lowercase: true,
+        match: [
+            /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
+            'Please provide a valid email address'
+        ]
+    },
     otp: {
         type: String,
         select: false // Don't return OTP by default

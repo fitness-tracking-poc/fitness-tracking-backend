@@ -2,7 +2,7 @@
 
 This document outlines the APIs implemented in the simplified Postman collection for the Fitness App backend. It focuses on basic data recording: mobile/OTP authentication, profile management, meal logging, and exercise logging. No calculations or advanced features are included.
 
-**Base URL:** `http://localhost:5000`  
+**Base URL:** `http://localhost:5000` (development) | `https://fitness-tracking-backend-0dvp.onrender.com` (production)  
 **Authentication:** Bearer token (JWT) required for most endpoints.  
 **Content-Type:** `application/json` for all requests.
 
@@ -34,32 +34,6 @@ This document outlines the APIs implemented in the simplified Postman collection
   ```
 - **Notes:** In development, OTP is always "123456". Check backend console for logs.
 
-### 2. Register (Verify OTP & Create Profile)
-- **Endpoint:** `POST /api/auth/verify-register`
-- **Description:** Verifies OTP and registers a new user with profile details.
-- **Headers:**
-  - `Content-Type: application/json`
-- **Request Body:**
-  ```json
-  {
-    "mobileNumber": "string",  // Required. Must match OTP request
-    "otp": "string",           // Required. 6-digit OTP
-    "name": "string",          // Required. User's full name
-    "profile": {               // Required. Profile object
-      "birthDate": "string",   // Required. Date string (YYYY-MM-DD)
-      "gender": "string",      // Required. "male", "female", or "other"
-      "age": "number",         // Optional. Age in years (13-120)
-      "height": "number",      // Optional. Height in cm (min 50)
-      "weight": "number",      // Optional. Weight in kg (min 20)
-      "fitnessGoal": "string", // Optional. "lose_weight", "gain_muscle", or "maintain"
-      "activityLevel": "string" // Optional. "sedentary", "light", "moderate", "active", or "very_active"
-    }
-  }
-  ```
-- **Response (Success):**
-  ```json
-  {
-    "success": true,
     "message": "User registered successfully",
     "data": {
       "user": { ... },  // User object
@@ -399,3 +373,232 @@ This document outlines the APIs implemented in the simplified Postman collection
 - Authentication is required for all endpoints except Send OTP, Register, and Login.
 - No calculations are performed; data is recorded as-is.
 - In development, OTP is mocked as "123456".
+
+---
+
+## Health Metrics
+
+The Health Metrics API provides a generic system for tracking various health measurements. Each metric type has a specific value structure.
+
+### Supported Metric Types and Value Structures
+
+- **blood_pressure**: `{ systolic: number, diastolic: number }`
+- **heart_rate**: `{ bpm: number }`
+- **weight**: `{ kg: number }`
+- **blood_sugar**: `{ mg_dL: number }`
+- **steps**: `{ count: number }`
+- **sleep_hours**: `{ hours: number }`
+- **water_intake**: `{ liters: number }`
+- **body_fat_percentage**: `{ percentage: number }`
+- **muscle_mass**: `{ kg: number }`
+- **bmi**: `{ value: number }`
+
+### 1. Add Health Metric
+- **Endpoint:** `POST /api/health-metrics`
+- **Description:** Records a new health metric measurement.
+- **Headers:**
+  - `Authorization: Bearer <token>`
+  - `Content-Type: application/json`
+- **Request Body:**
+  ```json
+  {
+    "metric_type": "string",    // Required. See supported types above
+    "value": {                  // Required. Object structure varies by metric_type
+      "systolic": 120,          // Example for blood_pressure
+      "diastolic": 80
+    },
+    "measured_at": "string"     // Optional. ISO date string; defaults to now
+  }
+  ```
+- **Response (Success):**
+  ```json
+  {
+    "success": true,
+  }
+  ```
+
+### 3. Update Health Metric
+- **Endpoint:** `PUT /api/health-metrics/:id`
+- **Description:** Updates an existing health metric.
+- **Headers:**
+  - `Authorization: Bearer <token>`
+  - `Content-Type: application/json`
+- **URL Parameters:**
+  - `id`: Health metric ID (string)
+- **Request Body:** (Partial updates allowed)
+  ```json
+  {
+    "metric_type": "string",    // Optional
+    "value": { ... },           // Optional
+    "measured_at": "string"     // Optional
+  }
+  ```
+- **Response (Success):**
+  ```json
+  {
+    "success": true,
+    "message": "Health metric updated successfully",
+    "data": { ... }  // Updated HealthMetric object
+  }
+  ```
+
+### 4. Delete Health Metric
+- **Endpoint:** `DELETE /api/health-metrics/:id`
+- **Description:** Deletes a health metric measurement.
+- **Headers:**
+  - `Authorization: Bearer <token>`
+- **URL Parameters:**
+  - `id`: Health metric ID (string)
+- **Request Body:** None
+- **Response (Success):**
+  ```json
+  {
+        "start": "2025-11-20T00:00:00.000Z",
+        "end": "2025-11-27T12:34:56.789Z",
+        "range": "weekly"
+      },
+      "summary": {
+        "count": 7,
+        "systolic": {           // For blood_pressure
+          "average": 118,
+          "highest": 125,
+          "lowest": 110
+        },
+        "diastolic": {
+          "average": 78,
+          "highest": 85,
+          "lowest": 70
+        },
+        "dataPoints": [ ... ]  // All measurements in the period
+      }
+    }
+  }
+  ```
+
+---
+
+## Summaries & Reports
+
+### 1. Get Daily Summary
+- **Endpoint:** `GET /api/summary/daily`
+- **Description:** Retrieves a summary of health data for a specific day, including meals, exercises, and calculated metrics.
+- **Headers:**
+  - `Authorization: Bearer <token>`
+- **Query Parameters:** (Optional)
+  - `date`: Date string (YYYY-MM-DD); defaults to today
+- **Request Body:** None
+- **Response (Success):**
+  ```json
+  {
+    "success": true,
+    "data": {
+      "date": "2025-11-27",
+      "meals": {
+        "count": 3,
+        "totalCalories": 1200,
+        "breakdown": {
+          "breakfast": 400,
+          "lunch": 500,
+          "dinner": 300
+        }
+      },
+      "exercises": {
+        "count": 2,
+        "totalDuration": 60,
+        "estimatedCaloriesBurned": 300,
+        "activities": [
+          {
+            "name": "Running",
+            "duration": 30,
+            "sets": null,
+            "reps": null,
+            "weight": null,
+            "distance": 5
+          }
+        ]
+      },
+      "netCalories": 900,
+      "goals": {
+        "fitnessGoal": "lose_weight",
+        "waterGoal": 8,
+        "stepsGoal": 10000,
+        "sleepGoal": 8
+      }
+    }
+  }
+  ```
+
+### 2. Get Weekly Report
+- **Endpoint:** `GET /api/summary/weekly`
+- **Description:** Retrieves a weekly report with daily breakdowns and weekly totals.
+- **Headers:**
+  - `Authorization: Bearer <token>`
+- **Query Parameters:** (Optional)
+  - `endDate`: Date string (YYYY-MM-DD); defaults to today (week ends on this date)
+- **Request Body:** None
+- **Response (Success):**
+  ```json
+  {
+    "success": true,
+    "data": {
+      "period": {
+        "startDate": "2025-11-21",
+        "endDate": "2025-11-27"
+      },
+      "weeklyTotals": {
+        "totalCaloriesConsumed": 8400,
+        "totalCaloriesBurned": 2100,
+        "netCalories": 6300,
+        "totalMeals": 21,
+        "totalExercises": 14,
+        "totalExerciseDuration": 420,
+        "averageDailyCalories": 900,
+        "averageDailyExercise": 60
+      },
+      "dailySummaries": {
+        "2025-11-21": {
+          "caloriesConsumed": 1200,
+          "caloriesBurned": 300,
+          "netCalories": 900,
+          "mealsCount": 3,
+          "exercisesCount": 2,
+          "exerciseDuration": 60
+        }
+      }
+    }
+  }
+  ```
+
+### 3. Get Monthly Report
+- **Endpoint:** `GET /api/summary/monthly`
+- **Description:** Retrieves a monthly report with aggregated data.
+- **Headers:**
+  - `Authorization: Bearer <token>`
+- **Query Parameters:** (Optional)
+  - `month`: Month number (1-12); defaults to current month
+  - `year`: Year number; defaults to current year
+- **Request Body:** None
+- **Response (Success):**
+  ```json
+  {
+    "success": true,
+    "data": {
+      "period": {
+        "month": 11,
+        "year": 2025,
+        "daysInMonth": 30
+      },
+      "monthlyTotals": {
+        "totalCaloriesConsumed": 36000,
+        "totalCaloriesBurned": 9000,
+        "netCalories": 27000,
+        "totalMeals": 90,
+        "totalExercises": 60,
+        "totalExerciseDuration": 1800,
+        "averageDailyCalories": 900,
+        "averageDailyExercise": 60,
+        "activeDays": 25
+      }
+    }
+  }
+  ```

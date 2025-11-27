@@ -2,12 +2,19 @@
 
 A simplified REST API backend for a fitness tracking application built with Node.js, Express, and MongoDB. Focuses on basic data recording without complex calculations.
 
+## 🌐 **Live API**
+**Production URL:** https://fitness-tracking-backend-0dvp.onrender.com
+
 ## 📋 Features
 
 - **OTP Authentication**: Mobile number verification with SMS OTP (mocked in development)
 - **Profile Management**: Minimal profile collection (name, gender, birthdate required)
 - **Meal Tracking**: Log meals with time-based validation (breakfast, brunch, lunch, dinner, snack)
 - **Exercise Tracking**: Basic exercise logging without calculations
+- **Daily Summaries**: Get daily health data summaries with calorie tracking and exercise metrics
+- **Health Reports**: Weekly and monthly reports with aggregated health data and trends
+- **Health Metrics**: Generic system for tracking various health measurements (blood pressure, heart rate, weight, blood sugar, etc.)
+- **Metrics Reports**: Aggregated reports with averages, min/max values for health metrics
 
 ## 🚀 Getting Started
 
@@ -85,31 +92,54 @@ http://localhost:5000/api
 | PUT | `/exercises/:id` | Update exercise |
 | DELETE | `/exercises/:id` | Delete exercise |
 
+### Health Metrics Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/health-metrics` | Add health metric |
+| GET | `/health-metrics` | Get health metrics (with filtering) |
+| GET | `/health-metrics/report` | Get aggregated report (daily/weekly/monthly) |
+| PUT | `/health-metrics/:id` | Update health metric |
+| DELETE | `/health-metrics/:id` | Delete health metric |
+
+### Summary & Reports Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/summary/daily` | Get daily summary |
+| GET | `/summary/weekly` | Get weekly report |
+| GET | `/summary/monthly` | Get monthly report |
+
 ## 🏗️ Project Structure
 
 ```
 backend/
 ├── src/
 │   ├── config/
-│   │   └── database.js          # MongoDB connection
+│   │   └── database.js          # MongoDB connection with validation
 │   ├── controllers/
 │   │   ├── auth.controller.js   # OTP authentication
 │   │   ├── user.controller.js   # Profile management
 │   │   ├── meal.controller.js   # Meal tracking with time validation
-│   │   └── exercise.controller.js # Exercise logging
+│   │   ├── exercise.controller.js # Exercise logging
+│   │   ├── healthMetric.controller.js # Health metrics tracking
+│   │   └── summary.controller.js # Daily/weekly/monthly reports
 │   ├── middleware/
 │   │   ├── auth.js              # JWT authentication
 │   │   └── errorHandler.js      # Error handling
 │   ├── models/
-│   │   ├── User.js              # User with mobile auth
-│   │   ├── Profile.js           # Minimal profile
+│   │   ├── User.js              # User with mobile auth & optional email
+│   │   ├── Profile.js           # User profile (gender, goals, preferences)
 │   │   ├── Meal.js              # Meal with time validation
-│   │   └── Exercise.js          # Basic exercise tracking
+│   │   ├── Exercise.js          # Basic exercise tracking
+│   │   └── HealthMetric.js      # Generic health metrics
 │   ├── routes/
 │   │   ├── auth.routes.js
 │   │   ├── user.routes.js
 │   │   ├── meal.routes.js
-│   │   └── exercise.routes.js
+│   │   ├── exercise.routes.js
+│   │   ├── healthMetric.routes.js
+│   │   └── summary.routes.js
 │   ├── services/
 │   │   └── OTPService.js        # Mock OTP service
 │   ├── utils/

@@ -21,26 +21,35 @@ exports.addMeal = asyncHandler(async (req, res, next) => {
     // Validate meal type time restrictions
     const mealDate = date ? new Date(date) : new Date();
     const hour = mealDate.getHours();
+    const today = new Date();
+    const isToday = mealDate.toDateString() === today.toDateString();
 
     let validTime = false;
-    switch (mealType.toLowerCase()) {
-        case 'breakfast':
-            validTime = hour >= 6 && hour <= 11; // 6 AM to 11 AM
-            break;
-        case 'brunch':
-            validTime = hour >= 10 && hour <= 14; // 10 AM to 2 PM
-            break;
-        case 'lunch':
-            validTime = hour >= 11 && hour <= 15; // 11 AM to 3 PM
-            break;
-        case 'dinner':
-            validTime = hour >= 17 && hour <= 23; // 5 PM to 11 PM
-            break;
-        case 'snack':
-            validTime = true; // Snacks allowed anytime
-            break;
-        default:
-            return next(new ErrorResponse('Invalid meal type. Must be breakfast, brunch, lunch, dinner, or snack', 400));
+    // Only enforce strict time windows for today's meals
+    // Allow more flexibility for logging past meals
+    if (isToday) {
+        switch (mealType.toLowerCase()) {
+            case 'breakfast':
+                validTime = hour >= 6 && hour <= 11;
+                break;
+            case 'brunch':
+                validTime = hour >= 10 && hour <= 14;
+                break;
+            case 'lunch':
+                validTime = hour >= 11 && hour <= 15;
+                break;
+            case 'dinner':
+                validTime = hour >= 17 && hour <= 23;
+                break;
+            case 'snack':
+                validTime = true;
+                break;
+            default:
+                return next(new ErrorResponse('Invalid meal type. Must be breakfast, brunch, lunch, dinner, or snack', 400));
+        }
+    } else {
+        // For past meals, allow any reasonable time (6 AM - 11 PM)
+        validTime = hour >= 6 && hour <= 23;
     }
 
     if (!validTime) {
@@ -51,7 +60,9 @@ exports.addMeal = asyncHandler(async (req, res, next) => {
             dinner: '5:00 PM to 11:00 PM',
             snack: 'anytime'
         };
-        return next(new ErrorResponse(`${mealType} can only be logged between ${timeRanges[mealType.toLowerCase()]}`, 400));
+        const mealTypeKey = mealType.toLowerCase();
+        const range = isToday ? timeRanges[mealTypeKey] : '6:00 AM to 11:00 PM (past meals)';
+        return next(new ErrorResponse(`${mealType} can only be logged between ${range}`, 400));
     }
 
     const meal = await Meal.create({

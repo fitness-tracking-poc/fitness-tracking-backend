@@ -26,10 +26,6 @@ const ProfileSchema = new mongoose.Schema({
         required: [true, 'Please select your gender'],
         enum: ['male', 'female', 'other']
     },
-    sex: {
-        type: String,
-        enum: ['Male', 'Female', 'Other']
-    },
     height: {
         type: Number,
         min: [50, 'Please provide a valid height']

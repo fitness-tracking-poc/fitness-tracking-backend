@@ -1,5 +1,17 @@
 # 🚀 Quick Start Guide - Fitness App Backend
 
+A comprehensive fitness tracking API with authentication, meal logging, exercise tracking, health metrics, and detailed reports.
+
+## Features
+
+- 🔐 **OTP Authentication** - Mobile number verification
+- 👤 **User Profiles** - Health and fitness goals
+- 🍎 **Meal Tracking** - Calorie counting and meal logging
+- 💪 **Exercise Logging** - Workout and activity tracking
+- 📊 **Health Metrics** - Blood pressure, heart rate, weight, and more
+- 📈 **Reports & Analytics** - Daily, weekly, and monthly summaries
+- 🎯 **Goal Tracking** - Water, steps, sleep, and fitness goals
+
 ## Step 1: Install Dependencies
 
 ```bash
