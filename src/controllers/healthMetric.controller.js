@@ -25,8 +25,6 @@ exports.addHealthMetric = asyncHandler(async (req, res, next) => {
         measured_at: measured_at ? new Date(measured_at) : new Date()
     });
 
-    console.log('Created health metric:', healthMetric);
-
     res.status(201).json({
         success: true,
         message: 'Health metric added successfully',
@@ -170,13 +168,11 @@ exports.getHealthMetricsReport = asyncHandler(async (req, res, next) => {
     }
 
     // Get metrics for the period
-    console.log('Query params:', { user: req.userId, metric_type, startDate, endDate });
     const metrics = await HealthMetric.find({
         user: req.userId,
         metric_type,
         measured_at: { $gte: startDate, $lte: endDate }
     }).sort({ measured_at: 1 });
-    console.log('Found metrics:', metrics.length);
 
     if (metrics.length === 0) {
         return res.status(200).json({
