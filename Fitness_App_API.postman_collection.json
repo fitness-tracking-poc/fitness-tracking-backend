@@ -1,7 +1,7 @@
 {
     "info": {
         "name": "Fitness App API",
-        "description": "Complete fitness tracking API with authentication, profiles, meals, exercises, health metrics, and reports.",
+        "description": "Complete fitness tracking API with authentication, profiles, meals, exercises, health metrics, health analysis, and reports.",
         "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
     },
     "item": [
@@ -724,6 +724,185 @@
                                     "key": "range",
                                     "value": "monthly",
                                     "description": "Last 30 days"
+                                }
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Health Analysis",
+            "item": [
+                {
+                    "name": "Get Comprehensive Health Analysis",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/health-analysis?days=30",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "health-analysis"
+                            ],
+                            "query": [
+                                {
+                                    "key": "days",
+                                    "value": "30",
+                                    "description": "Number of days to analyze (default: 30)"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Blood Pressure Analysis",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/health-analysis/blood-pressure?days=30&includeHistory=true",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "health-analysis",
+                                "blood-pressure"
+                            ],
+                            "query": [
+                                {
+                                    "key": "days",
+                                    "value": "30",
+                                    "description": "Number of days to analyze (default: 30)"
+                                },
+                                {
+                                    "key": "includeHistory",
+                                    "value": "true",
+                                    "description": "Include historical trend data"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Diabetes Risk Assessment",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/health-analysis/diabetes-risk?days=30&includeHistory=true&type=fasting",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "health-analysis",
+                                "diabetes-risk"
+                            ],
+                            "query": [
+                                {
+                                    "key": "days",
+                                    "value": "30",
+                                    "description": "Number of days to analyze (default: 30)"
+                                },
+                                {
+                                    "key": "includeHistory",
+                                    "value": "true",
+                                    "description": "Include historical trend data"
+                                },
+                                {
+                                    "key": "type",
+                                    "value": "fasting",
+                                    "description": "Type of blood sugar reading: fasting or random"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get BMI Analysis",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/health-analysis/bmi?days=30&includeHistory=true",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "health-analysis",
+                                "bmi"
+                            ],
+                            "query": [
+                                {
+                                    "key": "days",
+                                    "value": "30",
+                                    "description": "Number of days to analyze (default: 30)"
+                                },
+                                {
+                                    "key": "includeHistory",
+                                    "value": "true",
+                                    "description": "Include weight trend data"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Heart Rate Analysis",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/health-analysis/heart-rate?days=30&includeHistory=true",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "health-analysis",
+                                "heart-rate"
+                            ],
+                            "query": [
+                                {
+                                    "key": "days",
+                                    "value": "30",
+                                    "description": "Number of days to analyze (default: 30)"
+                                },
+                                {
+                                    "key": "includeHistory",
+                                    "value": "true",
+                                    "description": "Include historical trend data"
                                 }
                             ]
                         }
