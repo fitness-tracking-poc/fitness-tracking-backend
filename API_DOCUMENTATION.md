@@ -470,19 +470,6 @@ The Health Metrics API provides a generic system for tracking various health mea
           "lowest": 70
         },
         "dataPoints": [ ... ]  // All measurements in the period
-      }
-    }
-  }
-  ```
-
----
-
-## Summaries & Reports
-
-### 1. Get Daily Summary
-- **Endpoint:** `GET /api/summary/daily`
-- **Description:** Retrieves a summary of health data for a specific day, including meals, exercises, and calculated metrics.
-- **Headers:**
   - `Authorization: Bearer <token>`
 - **Query Parameters:** (Optional)
   - `date`: Date string (YYYY-MM-DD); defaults to today
@@ -528,7 +515,188 @@ The Health Metrics API provides a generic system for tracking various health mea
   }
   ```
 
-### 2. Get Weekly Report
+---
+
+## Health Analysis
+
+The Health Analysis API provides detailed analysis and risk assessment for various health metrics, including blood pressure, blood sugar, BMI, heart rate, and body fat percentage.
+
+### 1. Get Comprehensive Health Analysis
+- **Endpoint:** `GET /api/health-analysis`
+- **Description:** Retrieves a comprehensive health analysis summary for all tracked metrics.
+- **Headers:**
+  - `Authorization: Bearer <token>`
+- **Query Parameters:** (Optional)
+  - `days`: Number of days to analyze (default: 30)
+- **Request Body:** None
+- **Response (Success):**
+  ```json
+  {
+    "success": true,
+    "data": {
+      "analyzedAt": "2025-12-01T00:00:00.000Z",
+      "period": {
+        "days": 30,
+        "start": "2025-11-01",
+        "end": "2025-12-01"
+      },
+      "metrics": {
+        "bloodPressure": {
+          "latest": { "systolic": 120, "diastolic": 80 },
+          "measuredAt": "2025-11-30T10:00:00.000Z",
+          "category": "Normal",
+          "status": "normal",
+          "interpretation": "Your blood pressure is in the normal range.",
+          "recommendations": ["Maintain healthy habits"]
+        },
+        "bloodSugar": { ... },
+        "bmi": { ... },
+        "heartRate": { ... },
+        "bodyFat": { ... }
+      },
+      "overallStatus": "normal",
+      "summary": "All monitored metrics are in healthy ranges. Keep up the good work!"
+    }
+  }
+  ```
+
+### 2. Get Blood Pressure Analysis
+- **Endpoint:** `GET /api/health-analysis/blood-pressure`
+- **Description:** Retrieves detailed blood pressure analysis and trend information.
+- **Headers:**
+  - `Authorization: Bearer <token>`
+- **Query Parameters:** (Optional)
+  - `days`: Number of days to analyze (default: 30)
+  - `includeHistory`: Include historical data (true/false, default: false)
+- **Request Body:** None
+- **Response (Success):**
+  ```json
+  {
+    "success": true,
+    "data": {
+      "latestReading": {
+        "systolic": 120,
+        "diastolic": 80,
+        "measuredAt": "2025-11-30T10:00:00.000Z"
+      },
+      "category": "Normal",
+      "status": "normal",
+      "interpretation": "Your blood pressure is in the normal range.",
+      "recommendations": ["Maintain healthy habits"],
+      "trend": {
+        "readings": 10,
+        "systolic": { "average": 118, "highest": 125, "lowest": 110 },
+        "diastolic": { "average": 78, "highest": 85, "lowest": 70 },
+        "history": [ ... ]
+      }
+    }
+  }
+  ```
+
+### 3. Get Diabetes Risk Assessment
+- **Endpoint:** `GET /api/health-analysis/diabetes-risk`
+- **Description:** Retrieves diabetes risk assessment based on blood sugar readings.
+- **Headers:**
+  - `Authorization: Bearer <token>`
+- **Query Parameters:** (Optional)
+  - `days`: Number of days to analyze (default: 30)
+  - `includeHistory`: Include historical data (true/false, default: false)
+  - `type`: Blood sugar type ('fasting' or 'random', default: 'fasting')
+- **Request Body:** None
+- **Response (Success):**
+  ```json
+  {
+    "success": true,
+    "data": {
+      "latestReading": {
+        "value": 95,
+        "measuredAt": "2025-11-30T08:00:00.000Z",
+        "type": "fasting"
+      },
+      "category": "Normal",
+      "riskLevel": "Low",
+      "status": "normal",
+      "interpretation": "Your fasting blood glucose level is in the normal range.",
+      "recommendations": ["Maintain balanced diet"],
+      "trend": {
+        "average": 92,
+        "readings": 15,
+        "direction": "stable",
+        "history": [ ... ]
+      }
+    }
+  }
+  ```
+
+### 4. Get BMI Analysis
+- **Endpoint:** `GET /api/health-analysis/bmi`
+- **Description:** Retrieves BMI analysis and weight trend information.
+- **Headers:**
+  - `Authorization: Bearer <token>`
+- **Query Parameters:** (Optional)
+  - `days`: Number of days to analyze (default: 30)
+  - `includeHistory`: Include historical data (true/false, default: false)
+- **Request Body:** None
+- **Response (Success):**
+  ```json
+  {
+    "success": true,
+    "data": {
+      "latestReading": {
+        "value": 22.5,
+        "measuredAt": "2025-11-30T10:00:00.000Z"
+      },
+      "category": "Normal Weight",
+      "status": "normal",
+      "interpretation": "Your BMI is in the healthy range.",
+      "recommendations": ["Continue balanced eating"],
+      "weightTrend": {
+        "average": 70.5,
+        "readings": 8,
+        "direction": "stable",
+        "change": 0,
+        "history": [ ... ]
+      }
+    }
+  }
+  ```
+
+### 5. Get Heart Rate Analysis
+- **Endpoint:** `GET /api/health-analysis/heart-rate`
+- **Description:** Retrieves heart rate analysis and trend information.
+- **Headers:**
+  - `Authorization: Bearer <token>`
+- **Query Parameters:** (Optional)
+  - `days`: Number of days to analyze (default: 30)
+  - `includeHistory`: Include historical data (true/false, default: false)
+- **Request Body:** None
+- **Response (Success):**
+  ```json
+  {
+    "success": true,
+    "data": {
+      "latestReading": {
+        "bpm": 72,
+        "measuredAt": "2025-11-30T10:00:00.000Z"
+      },
+      "category": "Good",
+      "status": "normal",
+      "interpretation": "Your resting heart rate is good.",
+      "recommendations": ["Continue regular exercise"],
+      "trend": {
+        "average": 70,
+        "readings": 12,
+        "highest": 85,
+        "lowest": 60,
+        "history": [ ... ]
+      }
+    }
+  }
+  ```
+
+---
+
+## Summary
 - **Endpoint:** `GET /api/summary/weekly`
 - **Description:** Retrieves a weekly report with daily breakdowns and weekly totals.
 - **Headers:**
