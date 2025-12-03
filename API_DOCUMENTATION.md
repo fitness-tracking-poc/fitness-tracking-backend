@@ -696,6 +696,462 @@ The Health Analysis API provides detailed analysis and risk assessment for vario
 
 ---
 
+## Goals
+
+The Goals API provides a comprehensive system for setting, tracking, and managing fitness goals with milestones and progress monitoring.
+
+### 1. Create Goal
+- **Endpoint:** `POST /api/goals`
+- **Description:** Creates a new fitness goal with target values and optional milestones.
+- **Headers:**
+  - `Authorization: Bearer <token>`
+  - `Content-Type: application/json`
+- **Request Body:**
+  ```json
+  {
+    "goalType": "string",         // Required. See goal types below
+    "title": "string",            // Required. Max 100 characters
+    "description": "string",      // Optional. Max 500 characters
+    "targetValue": "number",      // Required. Target to achieve
+    "currentValue": "number",     // Optional. Starting value (default: 0)
+    "startValue": "number",       // Optional. Baseline value (default: 0)
+    "unit": "string",             // Required. "kg", "lbs", "km", "miles", etc.
+    "customUnit": "string",       // Optional. If unit is "custom"
+    "targetDate": "string",       // Required. ISO date format
+    "category": "string",         // Optional. "fitness", "nutrition", "health", "lifestyle"
+    "priority": "string",         // Optional. "low", "medium", "high"
+    "reminderEnabled": "boolean", // Optional. Default: true
+    "reminderTime": "string",     // Optional. Format "HH:MM"
+    "reminderDays": ["string"],   // Optional. Array of days
+    "milestones": [               // Optional. Array of milestones
+      {
+        "title": "string",
+        "targetValue": "number"
+      }
+    ]
+  }
+  ```
+- **Goal Types:**
+  - `weight_loss`, `weight_gain`, `muscle_gain`, `body_fat_reduction`
+  - `distance_running`, `exercise_duration`, `exercise_frequency`
+  - `steps_daily`, `water_intake`, `sleep_hours`, `calorie_intake`
+  - `strength_milestone`, `custom`
+- **Response (Success):**
+  ```json
+  {
+    "success": true,
+    "message": "Goal created successfully",
+    "data": { ... }  // Goal object
+  }
+  ```
+
+### 2. Get All Goals
+- **Endpoint:** `GET /api/goals`
+- **Description:** Retrieves all goals for the authenticated user with optional filtering.
+- **Headers:**
+  - `Authorization: Bearer <token>`
+- **Query Parameters:** (Optional)
+  - `status`: Filter by status ("active", "completed", "paused", "abandoned")
+  - `goalType`: Filter by goal type
+  - `category`: Filter by category
+  - `priority`: Filter by priority
+- **Request Body:** None
+- **Response (Success):**
+  ```json
+  {
+    "success": true,
+    "count": "number",
+    "stats": {
+      "total": "number",
+      "active": "number",
+      "completed": "number",
+      "paused": "number",
+      "abandoned": "number"
+    },
+    "data": [ ... ]  // Array of goal objects
+  }
+  ```
+
+### 3. Get Active Goals
+- **Endpoint:** `GET /api/goals/active`
+- **Description:** Retrieves only active goals for the user.
+- **Headers:**
+  - `Authorization: Bearer <token>`
+- **Request Body:** None
+- **Response (Success):**
+  ```json
+  {
+    "success": true,
+    "count": "number",
+    "data": [ ... ]  // Array of active goal objects
+  }
+  ```
+
+### 4. Get Goals Dashboard
+- **Endpoint:** `GET /api/goals/dashboard`
+- **Description:** Retrieves a comprehensive dashboard with goal statistics, streaks, and upcoming milestones.
+- **Headers:**
+  - `Authorization: Bearer <token>`
+- **Request Body:** None
+- **Response (Success):**
+  ```json
+  {
+    "success": true,
+    "data": {
+      "stats": {
+        "totalGoals": "number",
+        "activeGoals": "number",
+        "completedGoals": "number",
+        "averageProgress": "number",
+        "goalsNearCompletion": "number",
+        "overdueGoals": "number"
+      },
+      "activeGoals": [ ... ],
+      "recentlyCompleted": [ ... ],
+      "upcomingMilestones": [ ... ],
+      "streak": {
+        "currentStreak": "number",
+        "longestStreak": "number",
+        "totalActiveDays": "number"
+      }
+    }
+  }
+  ```
+
+### 5. Get Single Goal
+- **Endpoint:** `GET /api/goals/:id`
+- **Description:** Retrieves details of a specific goal.
+- **Headers:**
+  - `Authorization: Bearer <token>`
+- **URL Parameters:**
+  - `id`: Goal ID (string)
+- **Request Body:** None
+- **Response (Success):**
+  ```json
+  {
+    "success": true,
+    "data": { ... }  // Goal object with full details
+  }
+  ```
+
+### 6. Update Goal
+- **Endpoint:** `PUT /api/goals/:id`
+- **Description:** Updates goal details (not progress - use separate endpoint).
+- **Headers:**
+  - `Authorization: Bearer <token>`
+  - `Content-Type: application/json`
+- **URL Parameters:**
+  - `id`: Goal ID (string)
+- **Request Body:** (Partial updates allowed)
+  ```json
+  {
+    "title": "string",
+    "description": "string",
+    "targetValue": "number",
+    "targetDate": "string",
+    "priority": "string",
+    "reminderEnabled": "boolean",
+    "reminderTime": "string",
+    "reminderDays": ["string"]
+  }
+  ```
+- **Response (Success):**
+  ```json
+  {
+    "success": true,
+    "message": "Goal updated successfully",
+    "data": { ... }  // Updated goal object
+  }
+  ```
+
+### 7. Update Goal Progress
+- **Endpoint:** `PUT /api/goals/:id/progress`
+- **Description:** Updates the current progress value for a goal. Automatically calculates progress percentage and checks milestones.
+- **Headers:**
+  - `Authorization: Bearer <token>`
+  - `Content-Type: application/json`
+- **URL Parameters:**
+  - `id`: Goal ID (string)
+- **Request Body:**
+  ```json
+  {
+    "currentValue": "number",  // Required. New progress value
+    "note": "string"           // Optional. Progress note
+  }
+  ```
+- **Response (Success):**
+  ```json
+  {
+    "success": true,
+    "message": "Progress updated successfully",
+    "data": { ... }  // Updated goal with new progress
+  }
+  ```
+
+### 8. Update Goal Status
+- **Endpoint:** `PUT /api/goals/:id/status`
+- **Description:** Changes goal status (pause, resume, abandon).
+- **Headers:**
+  - `Authorization: Bearer <token>`
+  - `Content-Type: application/json`
+- **URL Parameters:**
+  - `id`: Goal ID (string)
+- **Request Body:**
+  ```json
+  {
+    "status": "string"  // Required. "active", "paused", or "abandoned"
+  }
+  ```
+- **Response (Success):**
+  ```json
+  {
+    "success": true,
+    "message": "Goal paused|resumed|abandoned",
+    "data": { ... }  // Updated goal
+  }
+  ```
+
+### 9. Add Milestone
+- **Endpoint:** `POST /api/goals/:id/milestones`
+- **Description:** Adds a new milestone to an existing goal.
+- **Headers:**
+  - `Authorization: Bearer <token>`
+  - `Content-Type: application/json`
+- **URL Parameters:**
+  - `id`: Goal ID (string)
+- **Request Body:**
+  ```json
+  {
+    "title": "string",       // Required. Milestone name
+    "targetValue": "number"  // Required. Value to achieve
+  }
+  ```
+- **Response (Success):**
+  ```json
+  {
+    "success": true,
+    "message": "Milestone added successfully",
+    "data": { ... }  // Updated goal with new milestone
+  }
+  ```
+
+### 10. Get Progress History
+- **Endpoint:** `GET /api/goals/:id/history`
+- **Description:** Retrieves the complete progress history for a goal.
+- **Headers:**
+  - `Authorization: Bearer <token>`
+- **URL Parameters:**
+  - `id`: Goal ID (string)
+- **Request Body:** None
+- **Response (Success):**
+  ```json
+  {
+    "success": true,
+    "data": {
+      "goalId": "string",
+      "title": "string",
+      "progressHistory": [
+        {
+          "value": "number",
+          "recordedAt": "string",
+          "note": "string"
+        }
+      ],
+      "currentProgress": "number"
+    }
+  }
+  ```
+
+### 11. Delete Goal
+- **Endpoint:** `DELETE /api/goals/:id`
+- **Description:** Deletes a goal permanently.
+- **Headers:**
+  - `Authorization: Bearer <token>`
+- **URL Parameters:**
+  - `id`: Goal ID (string)
+- **Request Body:** None
+- **Response (Success):**
+  ```json
+  {
+    "success": true,
+    "message": "Goal deleted successfully"
+  }
+  ```
+
+---
+
+## Achievements & Badges
+
+The Achievements API tracks user accomplishments, awards badges, and manages activity streaks.
+
+### 1. Get All Achievements
+- **Endpoint:** `GET /api/achievements`
+- **Description:** Retrieves all earned achievements for the user.
+- **Headers:**
+  - `Authorization: Bearer <token>`
+- **Query Parameters:** (Optional)
+  - `badgeType`: Filter by badge type
+  - `tier`: Filter by tier ("bronze", "silver", "gold", "platinum", "diamond")
+- **Request Body:** None
+- **Response (Success):**
+  ```json
+  {
+    "success": true,
+    "count": "number",
+    "data": [ ... ]  // Array of achievement objects
+  }
+  ```
+
+### 2. Get Achievement Statistics
+- **Endpoint:** `GET /api/achievements/stats`
+- **Description:** Retrieves statistics about earned achievements.
+- **Headers:**
+  - `Authorization: Bearer <token>`
+- **Request Body:** None
+- **Response (Success):**
+  ```json
+  {
+    "success": true,
+    "data": {
+      "total": "number",
+      "byType": {
+        "streak_milestone": "number",
+        "goal_completion": "number",
+        "exercise_milestone": "number",
+        "meal_milestone": "number"
+      },
+      "byTier": {
+        "bronze": "number",
+        "silver": "number",
+        "gold": "number",
+        "platinum": "number",
+        "diamond": "number"
+      },
+      "recent": [ ... ]  // Last 5 achievements
+    }
+  }
+  ```
+
+### 3. Get Streak Information
+- **Endpoint:** `GET /api/achievements/streak`
+- **Description:** Retrieves current and historical streak information.
+- **Headers:**
+  - `Authorization: Bearer <token>`
+- **Request Body:** None
+- **Response (Success):**
+  ```json
+  {
+    "success": true,
+    "data": {
+      "currentStreak": {
+        "count": "number",
+        "startDate": "string",
+        "lastActivityDate": "string"
+      },
+      "longestStreak": {
+        "count": "number",
+        "startDate": "string",
+        "endDate": "string"
+      },
+      "totalActiveDays": "number",
+      "exerciseStreak": { ... },
+      "mealLoggingStreak": { ... },
+      "goalProgressStreak": { ... }
+    }
+  }
+  ```
+
+### 4. Update Streak
+- **Endpoint:** `POST /api/achievements/streak/update`
+- **Description:** Updates the user's activity streak. Call this when user logs any activity.
+- **Headers:**
+  - `Authorization: Bearer <token>`
+- **Request Body:** None
+- **Response (Success):**
+  ```json
+  {
+    "success": true,
+    "message": "Streak updated successfully",
+    "data": {
+      "streak": { ... },
+      "newBadges": [ ... ]  // Any badges earned from streak milestone
+    }
+  }
+  ```
+
+### 5. Check and Award Badges
+- **Endpoint:** `POST /api/achievements/check`
+- **Description:** Checks all badge criteria and awards any newly earned badges.
+- **Headers:**
+  - `Authorization: Bearer <token>`
+- **Request Body:** None
+- **Response (Success):**
+  ```json
+  {
+    "success": true,
+    "message": "New badges awarded!" or "No new badges",
+    "data": {
+      "newBadges": [ ... ],
+      "count": "number"
+    }
+  }
+  ```
+
+### 6. Get Available Badges
+- **Endpoint:** `GET /api/achievements/available`
+- **Description:** Retrieves all possible badges with their earned status.
+- **Headers:**
+  - `Authorization: Bearer <token>`
+- **Request Body:** None
+- **Response (Success):**
+  ```json
+  {
+    "success": true,
+    "data": {
+      "total": "number",
+      "earned": "number",
+      "remaining": "number",
+      "badges": [
+        {
+          "badgeType": "string",
+          "name": "string",
+          "icon": "string",
+          "criteriaValue": "number",
+          "tier": "string",
+          "earned": "boolean"
+        }
+      ]
+    }
+  }
+  ```
+
+### 7. Delete Achievement
+- **Endpoint:** `DELETE /api/achievements/:id`
+- **Description:** Deletes a specific achievement (for testing or corrections).
+- **Headers:**
+  - `Authorization: Bearer <token>`
+- **URL Parameters:**
+  - `id`: Achievement ID (string)
+- **Request Body:** None
+- **Response (Success):**
+  ```json
+  {
+    "success": true,
+    "message": "Achievement deleted successfully"
+  }
+  ```
+
+### Badge Types
+- **streak_milestone**: Consecutive days of activity (7, 14, 30, 60, 100, 180, 365 days)
+- **goal_completion**: Awarded when a goal is completed
+- **exercise_milestone**: Total exercises logged (10, 50, 100, 250, 500)
+- **meal_milestone**: Total meals logged (50, 100, 250, 500, 1000)
+- **first_achievement**: First goal completed
+- **early_bird**: 7+ exercises before 8 AM
+- **perfectionist**: All goals on track or ahead
+
+---
+
 ## Summary
 - **Endpoint:** `GET /api/summary/weekly`
 - **Description:** Retrieves a weekly report with daily breakdowns and weekly totals.

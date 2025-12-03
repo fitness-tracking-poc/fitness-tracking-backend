@@ -15,6 +15,8 @@ A simplified REST API backend for a fitness tracking application built with Node
 - **Health Reports**: Weekly and monthly reports with aggregated health data and trends
 - **Health Metrics**: Generic system for tracking various health measurements (blood pressure, heart rate, weight, blood sugar, etc.)
 - **Metrics Reports**: Aggregated reports with averages, min/max values for health metrics
+- **Goal Tracking & Progress**: Set specific fitness goals with milestones and track progress over time
+- **Achievement System**: Earn badges and track streaks for consistent activity and goal completion
 
 ## 🚀 Getting Started
 
@@ -109,6 +111,34 @@ http://localhost:5000/api
 | GET | `/summary/daily` | Get daily summary |
 | GET | `/summary/weekly` | Get weekly report |
 | GET | `/summary/monthly` | Get monthly report |
+
+### Goal Tracking Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/goals` | Create a new goal |
+| GET | `/goals` | Get all goals (with filters) |
+| GET | `/goals/active` | Get active goals |
+| GET | `/goals/dashboard` | Get goals dashboard with stats |
+| GET | `/goals/:id` | Get single goal details |
+| PUT | `/goals/:id` | Update goal |
+| PUT | `/goals/:id/progress` | Update goal progress |
+| PUT | `/goals/:id/status` | Change goal status |
+| POST | `/goals/:id/milestones` | Add milestone to goal |
+| GET | `/goals/:id/history` | Get progress history |
+| DELETE | `/goals/:id` | Delete goal |
+
+### Achievements & Badges Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/achievements` | Get all earned achievements |
+| GET | `/achievements/stats` | Get achievement statistics |
+| GET | `/achievements/streak` | Get streak information |
+| POST | `/achievements/streak/update` | Update activity streak |
+| POST | `/achievements/check` | Check and award new badges |
+| GET | `/achievements/available` | Get all available badges |
+| DELETE | `/achievements/:id` | Delete achievement |
 
 ## 🏗️ Project Structure
 

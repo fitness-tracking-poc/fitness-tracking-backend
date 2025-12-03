@@ -1,7 +1,7 @@
 {
     "info": {
         "name": "Fitness App API",
-        "description": "Complete fitness tracking API with authentication, profiles, meals, exercises, health metrics, health analysis, and reports.",
+        "description": "Complete fitness tracking API with authentication, profiles, meals, exercises, health metrics, health analysis, reports, goal tracking, achievements, and streak management.",
         "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
     },
     "item": [
@@ -978,6 +978,658 @@
                                 "api",
                                 "summary",
                                 "monthly"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Goals",
+            "item": [
+                {
+                    "name": "Create Goal",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"goalType\": \"weight_loss\",\n  \"title\": \"Lose 10 kg\",\n  \"description\": \"Lose 10 kg for better health\",\n  \"startValue\": 80,\n  \"targetValue\": 70,\n  \"currentValue\": 80,\n  \"unit\": \"kg\",\n  \"targetDate\": \"2025-03-01T00:00:00Z\",\n  \"category\": \"fitness\",\n  \"priority\": \"high\",\n  \"reminderEnabled\": true,\n  \"reminderTime\": \"09:00\",\n  \"reminderDays\": [\"monday\", \"wednesday\", \"friday\"],\n  \"milestones\": [\n    {\n      \"title\": \"First 5 kg\",\n      \"targetValue\": 75\n    },\n    {\n      \"title\": \"Final 5 kg\",\n      \"targetValue\": 70\n    }\n  ]\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/goals",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "goals"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get All Goals",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/goals",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "goals"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get All Goals (Filtered)",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/goals?status=active&goalType=weight_loss&category=fitness&priority=high",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "goals"
+                            ],
+                            "query": [
+                                {
+                                    "key": "status",
+                                    "value": "active",
+                                    "description": "Filter by status: active, completed, paused, abandoned"
+                                },
+                                {
+                                    "key": "goalType",
+                                    "value": "weight_loss",
+                                    "description": "Filter by goal type"
+                                },
+                                {
+                                    "key": "category",
+                                    "value": "fitness",
+                                    "description": "Filter by category: fitness, nutrition, health, lifestyle"
+                                },
+                                {
+                                    "key": "priority",
+                                    "value": "high",
+                                    "description": "Filter by priority: low, medium, high"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Active Goals",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/goals/active",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "goals",
+                                "active"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Goals Dashboard",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/goals/dashboard",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "goals",
+                                "dashboard"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Single Goal",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/goals/:goalId",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "goals",
+                                ":goalId"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "goalId",
+                                    "value": ""
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Update Goal",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"title\": \"Updated Goal Title\",\n  \"description\": \"Updated description\",\n  \"targetValue\": 68,\n  \"targetDate\": \"2025-04-01T00:00:00Z\",\n  \"priority\": \"medium\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/goals/:goalId",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "goals",
+                                ":goalId"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "goalId",
+                                    "value": ""
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Update Goal Progress",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"currentValue\": 75,\n  \"note\": \"Lost 5 kg! Feeling great!\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/goals/:goalId/progress",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "goals",
+                                ":goalId",
+                                "progress"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "goalId",
+                                    "value": ""
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Update Goal Status",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"status\": \"paused\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/goals/:goalId/status",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "goals",
+                                ":goalId",
+                                "status"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "goalId",
+                                    "value": ""
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Add Milestone",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"title\": \"Halfway there\",\n  \"targetValue\": 72.5\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/goals/:goalId/milestones",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "goals",
+                                ":goalId",
+                                "milestones"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "goalId",
+                                    "value": ""
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Progress History",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/goals/:goalId/history",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "goals",
+                                ":goalId",
+                                "history"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "goalId",
+                                    "value": ""
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Delete Goal",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/goals/:goalId",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "goals",
+                                ":goalId"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "goalId",
+                                    "value": ""
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Create Exercise Frequency Goal",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"goalType\": \"exercise_frequency\",\n  \"title\": \"Exercise 4 times per week\",\n  \"description\": \"Maintain regular exercise routine\",\n  \"targetValue\": 4,\n  \"currentValue\": 0,\n  \"startValue\": 0,\n  \"unit\": \"times\",\n  \"targetDate\": \"2025-12-31T00:00:00Z\",\n  \"category\": \"fitness\",\n  \"priority\": \"high\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/goals",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "goals"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Create Running Distance Goal",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"goalType\": \"distance_running\",\n  \"title\": \"Run 100 km total\",\n  \"description\": \"Build running endurance\",\n  \"targetValue\": 100,\n  \"currentValue\": 0,\n  \"startValue\": 0,\n  \"unit\": \"km\",\n  \"targetDate\": \"2025-03-31T00:00:00Z\",\n  \"category\": \"fitness\",\n  \"priority\": \"medium\",\n  \"milestones\": [\n    {\n      \"title\": \"First 25 km\",\n      \"targetValue\": 25\n    },\n    {\n      \"title\": \"Halfway - 50 km\",\n      \"targetValue\": 50\n    },\n    {\n      \"title\": \"Final stretch - 75 km\",\n      \"targetValue\": 75\n    }\n  ]\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/goals",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "goals"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Achievements & Badges",
+            "item": [
+                {
+                    "name": "Get All Achievements",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/achievements",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "achievements"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Achievements (Filtered)",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/achievements?badgeType=streak_milestone&tier=gold",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "achievements"
+                            ],
+                            "query": [
+                                {
+                                    "key": "badgeType",
+                                    "value": "streak_milestone",
+                                    "description": "Filter by badge type"
+                                },
+                                {
+                                    "key": "tier",
+                                    "value": "gold",
+                                    "description": "Filter by tier: bronze, silver, gold, platinum, diamond"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Achievement Statistics",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/achievements/stats",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "achievements",
+                                "stats"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Streak Information",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/achievements/streak",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "achievements",
+                                "streak"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Update Streak",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/achievements/streak/update",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "achievements",
+                                "streak",
+                                "update"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Check and Award Badges",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/achievements/check",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "achievements",
+                                "check"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Available Badges",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/achievements/available",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "achievements",
+                                "available"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Delete Achievement",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/achievements/:achievementId",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "achievements",
+                                ":achievementId"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "achievementId",
+                                    "value": ""
+                                }
                             ]
                         }
                     }
