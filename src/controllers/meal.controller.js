@@ -236,7 +236,7 @@ exports.addMeal = asyncHandler(async (req, res, next) => {
 
     let mealDate;
 
-    // ✅ Step 1: Validate date (current/past date only)
+    // ✅ Step 1: Validate date (allow past and today, block future)
     if (date) {
         mealDate = new Date(date);
 
@@ -255,15 +255,17 @@ exports.addMeal = asyncHandler(async (req, res, next) => {
         mealDate = new Date();
     }
 
-    // ✅ Step 2: Convert backend UTC date into IST (real Indian time)
-    const istOffset = 5.5 * 60 * 60 * 1000; // 5.5 hours
-    const mealDateIST = new Date(mealDate.getTime() + istOffset);
-    const nowIST = new Date(Date.now() + istOffset);
+    // ✅ Step 2: Get IST hour properly (convert UTC → IST safely)
+    const istOffset = 5.5 * 60 * 60 * 1000;
+    const utcTime = mealDate.getTime(); // what JS thinks is UTC
+    const istTime = utcTime + istOffset;
+    const mealDateIST = new Date(istTime);
 
+    const nowIST = new Date(Date.now() + istOffset);
     const hour = mealDateIST.getHours();
     const isToday = mealDateIST.toDateString() === nowIST.toDateString();
 
-    // ✅ Step 3: Validate based on IST hours
+    // ✅ Step 3: Validate time ranges (IST based)
     let validTime = false;
 
     if (isToday) {
@@ -308,7 +310,7 @@ exports.addMeal = asyncHandler(async (req, res, next) => {
         return next(new ErrorResponse(`${mealType} can only be logged between ${range}`, 400));
     }
 
-    // ✅ Step 4: Save meal (store actual UTC date)
+    // ✅ Step 4: Store the original date (for consistency)
     const meal = await Meal.create({
         user: req.userId,
         mealType,
@@ -324,6 +326,7 @@ exports.addMeal = asyncHandler(async (req, res, next) => {
         data: meal,
     });
 });
+
 
 
 exports.getMeals = asyncHandler(async (req, res, next) => {
