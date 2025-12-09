@@ -221,6 +221,8 @@ const Meal = require('../models/Meal');
 const asyncHandler = require('../utils/asyncHandler');
 const ErrorResponse = require('../utils/ErrorResponse');
 
+const IST_OFFSET_MINUTES = 330; // UTC + 5:30
+
 exports.addMeal = asyncHandler(async (req, res, next) => {
     const { mealType, foodItems, calories, date, notes } = req.body;
 
@@ -250,9 +252,12 @@ exports.addMeal = asyncHandler(async (req, res, next) => {
         mealDate = new Date();
     }
 
-    const hour = mealDate.getHours();
-    const today = new Date();
-    const isToday = mealDate.toDateString() === today.toDateString();
+    // Convert to IST for time-window rules (6–11 breakfast etc.)
+    const mealDateIST = new Date(mealDate.getTime() + IST_OFFSET_MINUTES * 60 * 1000);
+    const nowIST = new Date(Date.now() + IST_OFFSET_MINUTES * 60 * 1000);
+
+    const hour = mealDateIST.getHours();
+    const isToday = mealDateIST.toDateString() === nowIST.toDateString();
 
     let validTime = false;
 
@@ -274,9 +279,15 @@ exports.addMeal = asyncHandler(async (req, res, next) => {
                 validTime = true;
                 break;
             default:
-                return next(new ErrorResponse('Invalid meal type. Must be breakfast, brunch, lunch, dinner, or snack', 400));
+                return next(
+                    new ErrorResponse(
+                        'Invalid meal type. Must be breakfast, brunch, lunch, dinner, or snack',
+                        400
+                    )
+                );
         }
     } else {
+        // For past meals (IST), allow 6 AM – 11 PM
         validTime = hour >= 6 && hour <= 23;
     }
 
@@ -430,4 +441,3 @@ exports.deleteMeal = asyncHandler(async (req, res, next) => {
         message: 'Meal deleted successfully'
     });
 });
-
