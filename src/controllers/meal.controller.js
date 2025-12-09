@@ -229,7 +229,6 @@ const ErrorResponse = require('../utils/ErrorResponse');
 exports.addMeal = asyncHandler(async (req, res, next) => {
     const { mealType, foodItems, calories, date, notes } = req.body;
 
-    // Basic validation
     if (!mealType) {
         return next(new ErrorResponse('Please specify meal type', 400));
     }
@@ -238,7 +237,7 @@ exports.addMeal = asyncHandler(async (req, res, next) => {
         return next(new ErrorResponse('Please add at least one food item', 400));
     }
 
-    // ✅ Validate and normalize date
+    // Date handling: accept any valid date (past / today / future allowed here)
     let mealDate;
     if (date) {
         mealDate = new Date(date);
@@ -246,19 +245,10 @@ exports.addMeal = asyncHandler(async (req, res, next) => {
         if (isNaN(mealDate.getTime())) {
             return next(new ErrorResponse('Invalid date format', 400));
         }
-
-        const now = new Date();
-        const mealDay = new Date(mealDate.getFullYear(), mealDate.getMonth(), mealDate.getDate());
-        const todayDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-
-        if (mealDay > todayDay) {
-            return next(new ErrorResponse('Meal date cannot be in the future', 400));
-        }
     } else {
         mealDate = new Date();
     }
 
-    // ✅ Save directly (no time restrictions)
     const meal = await Meal.create({
         user: req.userId,
         mealType,
@@ -283,12 +273,12 @@ exports.addMeal = asyncHandler(async (req, res, next) => {
 exports.getMeals = asyncHandler(async (req, res, next) => {
     const { startDate, endDate } = req.query;
 
-    let query = { user: req.userId };
+    const query = { user: req.userId };
 
     if (startDate && endDate) {
         query.date = {
             $gte: new Date(startDate),
-            $lte: new Date(endDate)
+            $lte: new Date(endDate),
         };
     }
 
@@ -297,7 +287,7 @@ exports.getMeals = asyncHandler(async (req, res, next) => {
     res.status(200).json({
         success: true,
         count: meals.length,
-        data: meals
+        data: meals,
     });
 });
 
@@ -315,18 +305,21 @@ exports.getTodayMeals = asyncHandler(async (req, res, next) => {
 
     const meals = await Meal.find({
         user: req.userId,
-        date: { $gte: startOfDay, $lte: endOfDay }
+        date: { $gte: startOfDay, $lte: endOfDay },
     }).sort({ date: -1 });
 
-    const totalCalories = meals.reduce((sum, meal) => sum + (meal.calories || 0), 0);
+    const totalCalories = meals.reduce(
+        (sum, meal) => sum + (meal.calories || 0),
+        0
+    );
 
     res.status(200).json({
         success: true,
         count: meals.length,
         data: {
             meals,
-            totalCalories
-        }
+            totalCalories,
+        },
     });
 });
 
@@ -348,7 +341,7 @@ exports.getMeal = asyncHandler(async (req, res, next) => {
 
     res.status(200).json({
         success: true,
-        data: meal
+        data: meal,
     });
 });
 
@@ -368,36 +361,24 @@ exports.updateMeal = asyncHandler(async (req, res, next) => {
         return next(new ErrorResponse('Not authorized to update this meal', 403));
     }
 
-    // ✅ Validate future date block
+    // If client sends date, just validate format
     if (req.body.date) {
         const newDate = new Date(req.body.date);
 
         if (isNaN(newDate.getTime())) {
             return next(new ErrorResponse('Invalid date format', 400));
         }
-
-        const now = new Date();
-        const mealDay = new Date(newDate.getFullYear(), newDate.getMonth(), newDate.getDate());
-        const todayDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-
-        if (mealDay > todayDay) {
-            return next(new ErrorResponse('Meal date cannot be in the future', 400));
-        }
     }
 
-    meal = await Meal.findByIdAndUpdate(
-        req.params.id,
-        req.body,
-        {
-            new: true,
-            runValidators: true
-        }
-    );
+    meal = await Meal.findByIdAndUpdate(req.params.id, req.body, {
+        new: true,
+        runValidators: true,
+    });
 
     res.status(200).json({
         success: true,
         message: 'Meal updated successfully',
-        data: meal
+        data: meal,
     });
 });
 
@@ -421,6 +402,6 @@ exports.deleteMeal = asyncHandler(async (req, res, next) => {
 
     res.status(200).json({
         success: true,
-        message: 'Meal deleted successfully'
+        message: 'Meal deleted successfully',
     });
 });
