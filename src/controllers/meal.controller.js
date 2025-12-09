@@ -237,7 +237,7 @@ exports.addMeal = asyncHandler(async (req, res, next) => {
         return next(new ErrorResponse('Please add at least one food item', 400));
     }
 
-    // Date handling: accept any valid date (past / today / future allowed here)
+  
     let mealDate;
     if (date) {
         mealDate = new Date(date);
