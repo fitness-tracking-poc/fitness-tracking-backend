@@ -236,7 +236,7 @@ exports.addMeal = asyncHandler(async (req, res, next) => {
 
     let mealDate;
 
-    // Validate meal date (current or past only, no future)
+    // Validate meal date (current or past DATE only, no future DATE)
     if (date) {
         mealDate = new Date(date);
 
@@ -245,14 +245,26 @@ exports.addMeal = asyncHandler(async (req, res, next) => {
         }
 
         const now = new Date();
-        if (mealDate > now) {
+
+        const mealDay = new Date(
+            mealDate.getFullYear(),
+            mealDate.getMonth(),
+            mealDate.getDate()
+        );
+        const todayDay = new Date(
+            now.getFullYear(),
+            now.getMonth(),
+            now.getDate()
+        );
+
+        if (mealDay > todayDay) {
             return next(new ErrorResponse('Meal date cannot be in the future', 400));
         }
     } else {
         mealDate = new Date();
     }
 
-    // Convert to IST for time-window rules (6–11 breakfast etc.)
+    // Convert to IST for time-window rules
     const mealDateIST = new Date(mealDate.getTime() + IST_OFFSET_MINUTES * 60 * 1000);
     const nowIST = new Date(Date.now() + IST_OFFSET_MINUTES * 60 * 1000);
 
@@ -393,7 +405,7 @@ exports.updateMeal = asyncHandler(async (req, res, next) => {
         return next(new ErrorResponse('Not authorized to update this meal', 403));
     }
 
-    // Validate date if user is trying to change it (current or past only)
+    // Validate date if user is trying to change it (current or past DATE only)
     if (req.body.date) {
         const newDate = new Date(req.body.date);
 
@@ -402,7 +414,19 @@ exports.updateMeal = asyncHandler(async (req, res, next) => {
         }
 
         const now = new Date();
-        if (newDate > now) {
+
+        const mealDay = new Date(
+            newDate.getFullYear(),
+            newDate.getMonth(),
+            newDate.getDate()
+        );
+        const todayDay = new Date(
+            now.getFullYear(),
+            now.getMonth(),
+            now.getDate()
+        );
+
+        if (mealDay > todayDay) {
             return next(new ErrorResponse('Meal date cannot be in the future', 400));
         }
     }
