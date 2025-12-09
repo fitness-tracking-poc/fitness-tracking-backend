@@ -236,7 +236,7 @@ exports.addMeal = asyncHandler(async (req, res, next) => {
 
     let mealDate;
 
-    // Validate meal date (current or past DATE only, no future DATE)
+    // ✅ Step 1: Validate date (current/past date only)
     if (date) {
         mealDate = new Date(date);
 
@@ -245,17 +245,8 @@ exports.addMeal = asyncHandler(async (req, res, next) => {
         }
 
         const now = new Date();
-
-        const mealDay = new Date(
-            mealDate.getFullYear(),
-            mealDate.getMonth(),
-            mealDate.getDate()
-        );
-        const todayDay = new Date(
-            now.getFullYear(),
-            now.getMonth(),
-            now.getDate()
-        );
+        const mealDay = new Date(mealDate.getFullYear(), mealDate.getMonth(), mealDate.getDate());
+        const todayDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
         if (mealDay > todayDay) {
             return next(new ErrorResponse('Meal date cannot be in the future', 400));
@@ -264,12 +255,15 @@ exports.addMeal = asyncHandler(async (req, res, next) => {
         mealDate = new Date();
     }
 
-  const mealDateIST = new Date(mealDate.getTime() + (330 * 60 * 1000)); // add 5h30m
-const nowIST = new Date(Date.now() + (330 * 60 * 1000));
+    // ✅ Step 2: Convert backend UTC date into IST (real Indian time)
+    const istOffset = 5.5 * 60 * 60 * 1000; // 5.5 hours
+    const mealDateIST = new Date(mealDate.getTime() + istOffset);
+    const nowIST = new Date(Date.now() + istOffset);
 
-const hour = mealDateIST.getHours();
-const isToday = mealDateIST.toDateString() === nowIST.toDateString();
+    const hour = mealDateIST.getHours();
+    const isToday = mealDateIST.toDateString() === nowIST.toDateString();
 
+    // ✅ Step 3: Validate based on IST hours
     let validTime = false;
 
     if (isToday) {
@@ -298,7 +292,6 @@ const isToday = mealDateIST.toDateString() === nowIST.toDateString();
                 );
         }
     } else {
-        // For past meals (IST), allow 6 AM – 11 PM
         validTime = hour >= 6 && hour <= 23;
     }
 
@@ -308,28 +301,30 @@ const isToday = mealDateIST.toDateString() === nowIST.toDateString();
             brunch: '10:00 AM to 2:00 PM',
             lunch: '11:00 AM to 3:00 PM',
             dinner: '5:00 PM to 11:00 PM',
-            snack: 'anytime'
+            snack: 'anytime',
         };
         const mealTypeKey = mealType.toLowerCase();
         const range = isToday ? timeRanges[mealTypeKey] : '6:00 AM to 11:00 PM (past meals)';
         return next(new ErrorResponse(`${mealType} can only be logged between ${range}`, 400));
     }
 
+    // ✅ Step 4: Save meal (store actual UTC date)
     const meal = await Meal.create({
         user: req.userId,
         mealType,
         foodItems,
         calories,
         date: mealDate,
-        notes
+        notes,
     });
 
     res.status(201).json({
         success: true,
         message: 'Meal added successfully',
-        data: meal
+        data: meal,
     });
 });
+
 
 exports.getMeals = asyncHandler(async (req, res, next) => {
     const { startDate, endDate } = req.query;
