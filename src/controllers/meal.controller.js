@@ -264,12 +264,11 @@ exports.addMeal = asyncHandler(async (req, res, next) => {
         mealDate = new Date();
     }
 
-    // Convert to IST for time-window rules
-    const mealDateIST = new Date(mealDate.getTime() + IST_OFFSET_MINUTES * 60 * 1000);
-    const nowIST = new Date(Date.now() + IST_OFFSET_MINUTES * 60 * 1000);
+  const mealDateIST = new Date(mealDate.getTime() + (330 * 60 * 1000)); // add 5h30m
+const nowIST = new Date(Date.now() + (330 * 60 * 1000));
 
-    const hour = mealDateIST.getHours();
-    const isToday = mealDateIST.toDateString() === nowIST.toDateString();
+const hour = mealDateIST.getHours();
+const isToday = mealDateIST.toDateString() === nowIST.toDateString();
 
     let validTime = false;
 
