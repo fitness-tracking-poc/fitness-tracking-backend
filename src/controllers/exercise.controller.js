@@ -3,7 +3,7 @@ const asyncHandler = require('../utils/asyncHandler');
 const ErrorResponse = require('../utils/ErrorResponse');
 
 /**
- * @desc    Add a single exercise
+ * @desc    Add an exercise
  * @route   POST /api/exercises
  * @access  Private
  */
@@ -14,16 +14,6 @@ exports.addExercise = asyncHandler(async (req, res, next) => {
         return next(new ErrorResponse('Please provide exercise name', 400));
     }
 
-    let exDate;
-    if (date) {
-        exDate = new Date(date);
-        if (isNaN(exDate.getTime())) {
-            return next(new ErrorResponse('Invalid date format', 400));
-        }
-    } else {
-        exDate = new Date();
-    }
-
     const exercise = await Exercise.create({
         user: req.userId,
         exerciseName,
@@ -32,7 +22,7 @@ exports.addExercise = asyncHandler(async (req, res, next) => {
         reps,
         weight,
         distance,
-        date: exDate,
+        date: date || new Date(),
         notes
     });
 
@@ -40,61 +30,6 @@ exports.addExercise = asyncHandler(async (req, res, next) => {
         success: true,
         message: 'Exercise added successfully',
         data: exercise
-    });
-});
-
-/**
- * @desc    Add multiple exercises in one request
- * @route   POST /api/exercises/batch
- * @access  Private
- */
-exports.addExercisesBatch = asyncHandler(async (req, res, next) => {
-    const { exercises } = req.body;
-
-    if (!exercises || !Array.isArray(exercises) || exercises.length === 0) {
-        return next(new ErrorResponse('Please send at least one exercise', 400));
-    }
-
-    const docs = [];
-
-    for (const ex of exercises) {
-        // Support both "exerciseName" and "name" (in case Flutter sends 'name')
-        const exerciseName = ex.exerciseName || ex.name;
-
-        if (!exerciseName) {
-            return next(new ErrorResponse('Each exercise must have a name', 400));
-        }
-
-        let exDate;
-        if (ex.date) {
-            exDate = new Date(ex.date);
-            if (isNaN(exDate.getTime())) {
-                return next(new ErrorResponse('Invalid date format in one of the exercises', 400));
-            }
-        } else {
-            exDate = new Date();
-        }
-
-        docs.push({
-            user: req.userId,
-            exerciseName,
-            duration: ex.duration || 0,
-            sets: ex.sets || 0,
-            reps: ex.reps || 0,
-            weight: ex.weight || 0,
-            distance: ex.distance || 0,
-            date: exDate,
-            notes: ex.notes || ''
-        });
-    }
-
-    const created = await Exercise.insertMany(docs);
-
-    res.status(201).json({
-        success: true,
-        message: 'Exercises added successfully',
-        count: created.length,
-        data: created
     });
 });
 
@@ -160,6 +95,7 @@ exports.getExercise = asyncHandler(async (req, res, next) => {
         return next(new ErrorResponse('Exercise not found', 404));
     }
 
+    // Check ownership
     if (exercise.user.toString() !== req.userId) {
         return next(new ErrorResponse('Not authorized to access this exercise', 403));
     }
@@ -182,15 +118,9 @@ exports.updateExercise = asyncHandler(async (req, res, next) => {
         return next(new ErrorResponse('Exercise not found', 404));
     }
 
+    // Check ownership
     if (exercise.user.toString() !== req.userId) {
         return next(new ErrorResponse('Not authorized to update this exercise', 403));
-    }
-
-    if (req.body.date) {
-        const newDate = new Date(req.body.date);
-        if (isNaN(newDate.getTime())) {
-            return next(new ErrorResponse('Invalid date format', 400));
-        }
     }
 
     exercise = await Exercise.findByIdAndUpdate(
@@ -221,6 +151,7 @@ exports.deleteExercise = asyncHandler(async (req, res, next) => {
         return next(new ErrorResponse('Exercise not found', 404));
     }
 
+    // Check ownership
     if (exercise.user.toString() !== req.userId) {
         return next(new ErrorResponse('Not authorized to delete this exercise', 403));
     }
