@@ -59,7 +59,7 @@ const MealSchema = new mongoose.Schema(
     mealType: {
       type: String,
       required: [true, 'Please specify meal type'],
-      enum: ['breakfast', 'brunch', 'lunch', 'dinner', 'snack'],
+      enum: ['breakfast', 'brunch', 'lunch', 'dinner', 'snack','foods_drinks'],
     },
     foodItems: [
       {
