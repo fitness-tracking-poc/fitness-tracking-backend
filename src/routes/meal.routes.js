@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const {
-    addMeal,
+    addMealsBatch,
     getMeals,
     getTodayMeals,
     getMeal,
@@ -15,7 +15,7 @@ router.use(protect);
 
 // Meal routes
 router.route('/')
-    .post(addMeal)
+    .post(addMealsBatch)
     .get(getMeals);
 
 router.get('/today', getTodayMeals);

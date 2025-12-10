@@ -222,7 +222,7 @@ const asyncHandler = require('../utils/asyncHandler');
 const ErrorResponse = require('../utils/ErrorResponse');
 
 /**
- * @desc    Add a meal
+ * @desc    Add a single meal
  * @route   POST /api/meals
  * @access  Private
  */
@@ -233,15 +233,13 @@ exports.addMeal = asyncHandler(async (req, res, next) => {
         return next(new ErrorResponse('Please specify meal type', 400));
     }
 
-    if (!foodItems || foodItems.length === 0) {
+    if (!foodItems || !Array.isArray(foodItems) || foodItems.length === 0) {
         return next(new ErrorResponse('Please add at least one food item', 400));
     }
 
-  
     let mealDate;
     if (date) {
         mealDate = new Date(date);
-
         if (isNaN(mealDate.getTime())) {
             return next(new ErrorResponse('Invalid date format', 400));
         }
@@ -262,6 +260,63 @@ exports.addMeal = asyncHandler(async (req, res, next) => {
         success: true,
         message: 'Meal added successfully',
         data: meal,
+    });
+});
+
+/**
+ * @desc    Add multiple meals in one request
+ * @route   POST /api/meals/batch
+ * @access  Private
+ */
+exports.addMealsBatch = asyncHandler(async (req, res, next) => {
+    const { meals } = req.body;
+
+    // Basic payload check
+    if (!meals || !Array.isArray(meals) || meals.length === 0) {
+        return next(new ErrorResponse('Please send at least one meal', 400));
+    }
+
+    const docs = [];
+
+    for (const m of meals) {
+        const mealType = m.mealType;
+        const foodItems = m.foodItems;
+
+        if (!mealType) {
+            return next(new ErrorResponse('Each meal must have a mealType', 400));
+        }
+
+        if (!foodItems || !Array.isArray(foodItems) || foodItems.length === 0) {
+            return next(new ErrorResponse('Each meal must have at least one food item', 400));
+        }
+
+        let mealDate;
+        if (m.date) {
+            mealDate = new Date(m.date);
+            if (isNaN(mealDate.getTime())) {
+                return next(new ErrorResponse('Invalid date format in one of the meals', 400));
+            }
+        } else {
+            mealDate = new Date();
+        }
+
+        docs.push({
+            user: req.userId,
+            mealType,
+            foodItems,
+            calories: m.calories || 0,
+            date: mealDate,
+            notes: m.notes || '',
+        });
+    }
+
+    const createdMeals = await Meal.insertMany(docs);
+
+    res.status(201).json({
+        success: true,
+        message: 'Meals added successfully',
+        count: createdMeals.length,
+        data: createdMeals,
     });
 });
 
@@ -361,10 +416,8 @@ exports.updateMeal = asyncHandler(async (req, res, next) => {
         return next(new ErrorResponse('Not authorized to update this meal', 403));
     }
 
-    // If client sends date, just validate format
     if (req.body.date) {
         const newDate = new Date(req.body.date);
-
         if (isNaN(newDate.getTime())) {
             return next(new ErrorResponse('Invalid date format', 400));
         }

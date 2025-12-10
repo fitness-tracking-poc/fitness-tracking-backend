@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const {
-    addExercise,
+    addExercisesBatch,
     getExercises,
     getTodayExercises,
     getExercise,
@@ -14,7 +14,7 @@ const { protect } = require('../middleware/auth');
 router.use(protect);
 
 router.route('/')
-    .post(addExercise)
+    .post(addExercisesBatch)
     .get(getExercises);
 
 router.get('/today', getTodayExercises);

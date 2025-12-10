@@ -49,10 +49,6 @@
 
 const mongoose = require('mongoose');
 
-/**
- * Meal Schema
- * Simple meal recording with manual calorie entry
- */
 const MealSchema = new mongoose.Schema(
   {
     user: {
@@ -72,7 +68,7 @@ const MealSchema = new mongoose.Schema(
           required: [true, 'Please provide food name'],
         },
         quantity: {
-          type: String, // e.g., "1 bowl", "2 pieces", "100g"
+          type: String, 
           default: '1 serving',
         },
       },
@@ -80,13 +76,12 @@ const MealSchema = new mongoose.Schema(
     calories: {
       type: Number,
       min: [0, 'Calories cannot be negative'],
-      // Optional - manually entered by user
+     
     },
     date: {
       type: Date,
       default: Date.now,
-      // ⚠️ No future-date validation here.
-      // Frontend / controller pe khud handle kar raha hai tu.
+     
     },
     notes: {
       type: String,
@@ -98,7 +93,6 @@ const MealSchema = new mongoose.Schema(
   }
 );
 
-// Index for faster queries
 MealSchema.index({ user: 1, date: -1 });
 
 module.exports = mongoose.model('Meal', MealSchema);
