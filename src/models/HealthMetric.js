@@ -40,7 +40,7 @@ HealthMetricSchema.pre('save', function(next) {
         blood_sugar: ['mg_dL'],
         steps: ['count'],
         sleep_hours: ['hours'],
-        water_intake: ['liters'],
+        water_intake: ['glasses'],
         body_fat_percentage: ['percentage'],
         muscle_mass: ['kg'],
         bmi: ['value']
