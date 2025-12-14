@@ -31,7 +31,81 @@ exports.addHealthMetric = asyncHandler(async (req, res, next) => {
         data: healthMetric
     });
 });
+/**
+ * @desc    Get history for a specific metric (Like getMeals)
+ * @route   GET /api/health-metrics/history/:type
+ * @access  Private
+ */
+exports.getMetricHistory = asyncHandler(async (req, res, next) => {
+    const { type } = req.params;
+    const { startDate, endDate } = req.query;
 
+    let query = { 
+        user: req.userId,
+        metric_type: type 
+    };
+
+    // Date filtering (Same logic as your Meals code)
+    if (startDate && endDate) {
+        query.measured_at = {
+            $gte: new Date(startDate),
+            $lte: new Date(endDate)
+        };
+    }
+
+    const history = await HealthMetric.find(query).sort({ measured_at: -1 });
+
+    res.status(200).json({
+        success: true,
+        count: history.length,
+        data: history
+    });
+});
+
+/**
+ * @desc    Get today's summary for a specific metric (Like getTodayMeals)
+ * @route   GET /api/health-metrics/today/:type
+ * @access  Private
+ */
+exports.getTodayMetric = asyncHandler(async (req, res, next) => {
+    const { type } = req.params;
+    
+    // Calculate start and end of today
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const endOfDay = new Date();
+    endOfDay.setHours(23, 59, 59, 999);
+
+    const metrics = await HealthMetric.find({
+        user: req.userId,
+        metric_type: type,
+        measured_at: { $gte: startOfDay, $lte: endOfDay }
+    }).sort({ measured_at: -1 });
+
+    // Calculate "Total" just like you calculated "totalCalories" in Meals
+    let total = 0;
+
+    // We have to check the type to know what field to sum
+    metrics.forEach(metric => {
+        if (type === 'steps' && metric.value.count) {
+            total += metric.value.count;
+        } else if (type === 'water_intake' && metric.value.glasses) {
+            total += metric.value.glasses;
+        } else if (type === 'sleep_hours' && metric.value.hours) {
+            total += metric.value.hours;
+        }
+    });
+
+    res.status(200).json({
+        success: true,
+        count: metrics.length,
+        data: {
+            metrics,   // The list of today's entries
+            total      // The sum (Total steps, Total glasses, etc.)
+        }
+    });
+});
 /**
  * @desc    Get health metrics
  * @route   GET /api/health-metrics
