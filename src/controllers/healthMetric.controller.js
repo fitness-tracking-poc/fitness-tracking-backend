@@ -149,8 +149,14 @@ exports.getHealthMetrics = asyncHandler(async (req, res, next) => {
  * @route   PUT /api/health-metrics/:id
  * @access  Private
  */
+/**
+ * @desc    Update health metric
+ * @route   PUT /api/health-metrics/:id
+ * @access  Private
+ */
 exports.updateHealthMetric = asyncHandler(async (req, res, next) => {
-    const { metric_type, value, measured_at } = req.body;
+  
+    const { metric_type, value, measured_at, notes } = req.body;
 
     let metric = await HealthMetric.findById(req.params.id);
 
@@ -158,14 +164,20 @@ exports.updateHealthMetric = asyncHandler(async (req, res, next) => {
         return next(new ErrorResponse('Health metric not found', 404));
     }
 
- 
+   
     if (metric.user.toString() !== req.userId) {
         return next(new ErrorResponse('Not authorized to update this metric', 403));
     }
 
+  
     if (metric_type) metric.metric_type = metric_type;
     if (value) metric.value = value;
     if (measured_at) metric.measured_at = new Date(measured_at);
+    
+   
+    if (notes !== undefined) {
+        metric.notes = notes;
+    }
 
     await metric.save();
 
