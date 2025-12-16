@@ -19,6 +19,10 @@ const HealthMetricSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.Mixed, // JSON object that varies by metric_type
         required: [true, 'Please provide metric value']
     },
+    notes: {
+        type: String,
+        maxlength: [500, 'Notes cannot exceed 500 characters']
+    },
     measured_at: {
         type: Date,
         default: Date.now,
