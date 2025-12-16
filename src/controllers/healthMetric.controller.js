@@ -8,7 +8,7 @@ const ErrorResponse = require('../utils/ErrorResponse');
  * @access  Private
  */
 exports.addHealthMetric = asyncHandler(async (req, res, next) => {
-    const { metric_type, value, measured_at, notes } = req.body;
+    const { metric_type, value, measured_at } = req.body;
 
     if (!metric_type) {
         return next(new ErrorResponse('Please specify metric type', 400));
@@ -22,8 +22,7 @@ exports.addHealthMetric = asyncHandler(async (req, res, next) => {
         user: req.userId,
         metric_type,
         value,
-        measured_at: measured_at ? new Date(measured_at) : new Date(),
-        notes: notes
+        measured_at: measured_at ? new Date(measured_at) : new Date()
     });
 
     res.status(201).json({
@@ -84,9 +83,10 @@ exports.getTodayMetric = asyncHandler(async (req, res, next) => {
         measured_at: { $gte: startOfDay, $lte: endOfDay }
     }).sort({ measured_at: -1 });
 
+    // Calculate "Total" just like you calculated "totalCalories" in Meals
     let total = 0;
 
-   
+    // We have to check the type to know what field to sum
     metrics.forEach(metric => {
         if (type === 'steps' && metric.value.count) {
             total += metric.value.count;
@@ -101,8 +101,8 @@ exports.getTodayMetric = asyncHandler(async (req, res, next) => {
         success: true,
         count: metrics.length,
         data: {
-            metrics,  
-            total      
+            metrics,   // The list of today's entries
+            total      // The sum (Total steps, Total glasses, etc.)
         }
     });
 });
@@ -125,11 +125,11 @@ exports.getHealthMetrics = asyncHandler(async (req, res, next) => {
         if (start) query.measured_at.$gte = new Date(start);
         if (end) {
             const endDate = new Date(end);
-            endDate.setHours(23, 59, 59, 999);
+            endDate.setHours(23, 59, 59, 999); // Include the entire end day
             query.measured_at.$lte = endDate;
         }
 
-    
+        // Validate date range
         if (start && end && new Date(start) > new Date(end)) {
             return next(new ErrorResponse('Start date cannot be after end date', 400));
         }
@@ -149,14 +149,8 @@ exports.getHealthMetrics = asyncHandler(async (req, res, next) => {
  * @route   PUT /api/health-metrics/:id
  * @access  Private
  */
-/**
- * @desc    Update health metric
- * @route   PUT /api/health-metrics/:id
- * @access  Private
- */
 exports.updateHealthMetric = asyncHandler(async (req, res, next) => {
-  
-    const { metric_type, value, measured_at, notes } = req.body;
+    const { metric_type, value, measured_at } = req.body;
 
     let metric = await HealthMetric.findById(req.params.id);
 
@@ -164,20 +158,15 @@ exports.updateHealthMetric = asyncHandler(async (req, res, next) => {
         return next(new ErrorResponse('Health metric not found', 404));
     }
 
-   
+    // Check ownership
     if (metric.user.toString() !== req.userId) {
         return next(new ErrorResponse('Not authorized to update this metric', 403));
     }
 
-  
+    // Update fields
     if (metric_type) metric.metric_type = metric_type;
     if (value) metric.value = value;
     if (measured_at) metric.measured_at = new Date(measured_at);
-    
-   
-    if (notes !== undefined) {
-        metric.notes = notes;
-    }
 
     await metric.save();
 
@@ -200,7 +189,7 @@ exports.deleteHealthMetric = asyncHandler(async (req, res, next) => {
         return next(new ErrorResponse('Health metric not found', 404));
     }
 
-  
+    // Check ownership
     if (metric.user.toString() !== req.userId) {
         return next(new ErrorResponse('Not authorized to delete this metric', 403));
     }
@@ -229,7 +218,7 @@ exports.getHealthMetricsReport = asyncHandler(async (req, res, next) => {
         return next(new ErrorResponse('Please specify range as daily, weekly, or monthly', 400));
     }
 
-  
+    // Calculate date range
     const now = new Date();
     let startDate;
     let endDate = new Date(now);
@@ -252,7 +241,7 @@ exports.getHealthMetricsReport = asyncHandler(async (req, res, next) => {
             break;
     }
 
-
+    // Get metrics for the period
     const metrics = await HealthMetric.find({
         user: req.userId,
         metric_type,
@@ -276,7 +265,7 @@ exports.getHealthMetricsReport = asyncHandler(async (req, res, next) => {
         });
     }
 
-
+    // Calculate aggregates based on metric type
     let summary = {
         count: metrics.length,
         dataPoints: metrics.map(m => ({
@@ -287,7 +276,7 @@ exports.getHealthMetricsReport = asyncHandler(async (req, res, next) => {
     };
 
     if (metric_type === 'blood_pressure') {
-      
+        // Calculate systolic and diastolic stats
         const systolicValues = metrics.map(m => m.value.systolic);
         const diastolicValues = metrics.map(m => m.value.diastolic);
 
@@ -303,7 +292,7 @@ exports.getHealthMetricsReport = asyncHandler(async (req, res, next) => {
             lowest: Math.min(...diastolicValues)
         };
     } else {
-        
+        // For single-value metrics
         const fieldName = Object.keys(metrics[0].value)[0];
         const values = metrics.map(m => m.value[fieldName]);
 
