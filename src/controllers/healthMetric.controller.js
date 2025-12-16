@@ -8,7 +8,7 @@ const ErrorResponse = require('../utils/ErrorResponse');
  * @access  Private
  */
 exports.addHealthMetric = asyncHandler(async (req, res, next) => {
-    const { metric_type, value, measured_at } = req.body;
+    const { metric_type, value, measured_at, notes } = req.body;
 
     if (!metric_type) {
         return next(new ErrorResponse('Please specify metric type', 400));
