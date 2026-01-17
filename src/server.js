@@ -42,6 +42,7 @@ app.use('/api/health-metrics', require('./routes/healthMetric.routes'));
 app.use('/api/health-analysis', require('./routes/healthAnalysis.routes'));
 app.use('/api/goals', require('./routes/goal.routes'));
 app.use('/api/achievements', require('./routes/achievement.routes'));
+app.use('/api', require('./routes/ai.routes')); // AI diet plan generation
 
 // Error Handling Middleware
 app.use(require('./middleware/errorHandler'));

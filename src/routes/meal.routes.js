@@ -6,7 +6,9 @@ const {
     getTodayMeals,
     getMeal,
     updateMeal,
-    deleteMeal
+    deleteMeal,
+    getNutritionSummary,
+    regenerateNutrition
 } = require('../controllers/meal.controller');
 const { protect } = require('../middleware/auth');
 
@@ -19,10 +21,13 @@ router.route('/')
     .get(getMeals);
 
 router.get('/today', getTodayMeals);
+router.get('/nutrition-summary', getNutritionSummary);
 
 router.route('/:id')
     .get(getMeal)
     .put(updateMeal)
     .delete(deleteMeal);
+
+router.post('/:id/regenerate-nutrition', regenerateNutrition);
 
 module.exports = router;
