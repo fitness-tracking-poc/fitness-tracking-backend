@@ -90,6 +90,56 @@ const ProfileSchema = new mongoose.Schema({
         min: 0,
         max: 100,
         default: 0
+    },
+    // Personalized RDA (Recommended Daily Allowance)
+    personalizedRDA: {
+        calories: { type: Number, default: 2000 },
+        bmr: { type: Number },
+        tdee: { type: Number },
+        macros: {
+            protein: { type: Number, default: 50 },
+            carbohydrates: { type: Number, default: 300 },
+            fats: { type: Number, default: 65 },
+            fiber: { type: Number, default: 28 },
+            sugar: { type: Number, default: 50 },
+            saturatedFat: { type: Number, default: 20 },
+            transFat: { type: Number, default: 0 },
+            cholesterol: { type: Number, default: 300 }
+        },
+        vitamins: {
+            vitaminA: { type: Number, default: 900 },
+            vitaminC: { type: Number, default: 90 },
+            vitaminD: { type: Number, default: 15 },
+            vitaminE: { type: Number, default: 15 },
+            vitaminK: { type: Number, default: 120 },
+            vitaminB1: { type: Number, default: 1.2 },
+            vitaminB2: { type: Number, default: 1.3 },
+            vitaminB3: { type: Number, default: 16 },
+            vitaminB6: { type: Number, default: 1.3 },
+            vitaminB12: { type: Number, default: 2.4 },
+            folate: { type: Number, default: 400 }
+        },
+        minerals: {
+            calcium: { type: Number, default: 1000 },
+            iron: { type: Number, default: 8 },
+            magnesium: { type: Number, default: 400 },
+            phosphorus: { type: Number, default: 700 },
+            potassium: { type: Number, default: 3400 },
+            sodium: { type: Number, default: 2300 },
+            zinc: { type: Number, default: 11 },
+            copper: { type: Number, default: 0.9 },
+            manganese: { type: Number, default: 2.3 },
+            selenium: { type: Number, default: 55 }
+        },
+        calculatedAt: { type: Date },
+        basedOn: {
+            age: Number,
+            gender: String,
+            weight: Number,
+            height: Number,
+            activityLevel: String,
+            fitnessGoal: String
+        }
     }
 }, {
     timestamps: true

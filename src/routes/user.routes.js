@@ -3,7 +3,9 @@ const router = express.Router();
 const {
     getProfile,
     updateProfile,
-    updateAccount
+    updateAccount,
+    getRDA,
+    recalculateRDA
 } = require('../controllers/user.controller');
 const { protect } = require('../middleware/auth');
 
@@ -13,5 +15,9 @@ router.use(protect);
 router.get('/profile', getProfile);
 router.put('/profile', updateProfile);
 router.put('/account', updateAccount);
+
+// RDA endpoints
+router.get('/rda', getRDA);
+router.post('/rda/recalculate', recalculateRDA);
 
 module.exports = router;

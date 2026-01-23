@@ -3,6 +3,7 @@ const Profile = require('../models/Profile');
 const asyncHandler = require('../utils/asyncHandler');
 const ErrorResponse = require('../utils/ErrorResponse');
 const OTPService = require('../services/OTPService');
+const { calculatePersonalizedRDA } = require('../utils/rdaCalculator');
 
 /**
  * @desc    Send OTP to mobile number
@@ -102,7 +103,17 @@ exports.verifyOTPAndRegister = asyncHandler(async (req, res, next) => {
     user.otpExpiry = undefined;
     await user.save();
 
-    // Create profile
+    // Calculate personalized RDA based on user profile
+    const personalizedRDA = calculatePersonalizedRDA({
+        age,
+        gender,
+        weight,
+        height,
+        fitnessGoal,
+        activityLevel: profile.activityLevel || 'moderate'
+    });
+
+    // Create profile with personalized RDA
     const userProfile = await Profile.create({
         user: user._id,
         age,
@@ -116,7 +127,8 @@ exports.verifyOTPAndRegister = asyncHandler(async (req, res, next) => {
         dietaryPreferences: profile.dietaryPreferences,
         waterGoal: profile.waterGoal,
         stepsGoal: profile.stepsGoal,
-        sleepGoal: profile.sleepGoal
+        sleepGoal: profile.sleepGoal,
+        personalizedRDA
     });
 
     // Generate token
